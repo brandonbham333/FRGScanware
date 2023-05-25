@@ -1,0 +1,577 @@
+﻿@model Scanware.Models.CoilModel
+@using Scanware.Data
+@using Scanware.Ancestor
+
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<meta http-equiv="IBrowse_ScannerNavigate" content="Javascript:OnScan('%s','%s','%s');" />
+<script type="text/javascript">
+
+    function OnScan(data1, type1, time1) {
+        var coilNum = data1;
+        coilNum = coilNum.toUpperCase();
+
+        if (coilNum.substring(0, 1) == "S") {
+            coilNum = coilNum.substring(1, coilNum.length)
+        }
+
+        document.getElementById("searchType").value = coilNum;
+
+        document.CoilLookup.submit();
+    }
+
+    $(document).ready(function () {
+        $("#searchType").focus();
+    });
+</script>
+
+
+@if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57"))
+{ //if using zebra scanner
+    <script type="text/javascript" charset="utf-8" src="../Scripts/ebapi-modules.js"></script>
+    <script type="text/javascript">
+
+
+        $(document).ready(function () {
+            EB.Barcode.enable({ allDecoders: true }, fnBarcodeScanned); //enable
+        });
+
+        function fnBarcodeScanned(jsonObject) {
+
+            var coilNum = jsonObject.data;
+
+            if (coilNum.substring(0, 1) == "S") {
+                coilNum = coilNum.substring(1, coilNum.length)
+            }
+
+            coilNum = coilNum.toUpperCase();
+            document.getElementById("searchType").value = coilNum;
+
+            document.CoilLookup.submit();
+
+        }
+
+    </script>
+}
+
+
+
+<h2>Coil Details</h2>
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+        <div class="panel-heading">
+            Error
+        </div>
+        <div class="panel-body">
+            <p>@Model.Error</p>
+        </div>
+    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+        <div class="panel-heading">
+            Message
+        </div>
+        <div class="panel-body">
+            <p>@Model.Message</p>
+        </div>
+    </div>
+}
+
+@if (Model.searched_coil_consumed)
+{
+    <div class="panel panel-yellow">
+        <div class="panel-heading">
+            Alert
+        </div>
+        <div class="panel-body">
+            <p>@Model.searched_coil_number is consumed, showing data for @Model.current_all_produced_coil.production_coil_no</p>
+        </div>
+    </div>
+}
+
+
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <span>Coil Search</span>
+        <div style="display: inline; float: right;">
+            <label for="searchToggle" style="font-weight: 300;">Alias</label>
+            <label class="switch">
+                <input type="checkbox" id="searchToggle" />
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="panel-body">
+        <form action="/Coil/Index" method="post" id="CoilLookup" name="CoilLookup">
+            <div class="form-group">
+                <label id="searchLabel">Coil Number</label>
+                <input class="form-control" id="searchType" type="text" name="production_coil_no" value="@Model.searched_coil_number" />
+            </div>
+            <button class="btn btn-primary" type="submit">Search</button>
+        </form>
+    </div>
+
+    @if (ViewBag.CoilAliases != null)
+    {
+        <div class="panel-body">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Coil Alias</th>
+                        <th>Production Coil Number</th>
+                        <th>Populate Search Field</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in ViewBag.CoilAliases)
+                    {
+                        <tr>
+                            <td>@c.coil_alias</td>
+                            <td>@c.production_coil_no</td>
+                            <td><button value="@c.production_coil_no" onclick="fillInputWithCoil()" class="btn btn-info">Select Coil Number</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+
+@if (Model.Error == null)
+{
+    if (Model.searched_coil_number != null && Model.searched_coil_number != "")
+    {
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <span>Coil Details - @Model.current_all_produced_coil.production_coil_no </span>
+
+                @if (Model.current_all_produced_coil.production_coil_no != Model.current_all_produced_coil.tag_no && Model.current_all_produced_coil.tag_no != null)
+                {
+                    <text> / @Model.current_all_produced_coil.tag_no</text>
+                }
+                <div style="display: inline;">
+                    @if (Model.has_HOT_fls) // FLS access allows edit
+                    {
+                        <form action="/Coil/ToggleHotStatus" method="post" style="float:right;">
+                            <input type="hidden" name="production_coil_no" value="@Model.searched_coil_number" />
+                            <button style="color: #111; border-radius: 3px;">Toggle HOT Status</button>
+                        </form>
+                    }
+
+                    @if (Model.current_all_produced_coil.is_hot != null)
+                    {
+                        <span style="font-size: 2rem; float: right; margin-right: 20px;">&#128293</span>
+                    }
+                </div>
+            </div>
+
+            <div class="panel-body">
+                @if (Model.sister_coils.Count > 1)
+                {
+                    <ul class="list-inline">
+                        <li>Sisters: </li>
+                        @foreach (var apc in Model.sister_coils)
+                        {
+                            if (apc.production_coil_no == Model.current_all_produced_coil.production_coil_no)
+                            {
+                                <li>
+                                    @apc.production_coil_no
+                                    @if (apc.production_coil_no != apc.tag_no && apc.tag_no != null)
+                                    {
+                                        <text> / @apc.tag_no</text>
+                                    }
+                                </li>
+                            }
+                            else
+                            {
+                                <li>
+                                    <a href="/Coil/Index?production_coil_no=@apc.production_coil_no">
+                                        @apc.production_coil_no
+                                        @if (apc.production_coil_no != apc.tag_no && apc.tag_no != null)
+                                        {
+                                            <text> / @apc.tag_no</text>
+                                        }
+                                    </a>
+                                </li>
+                            }
+                        }
+                    </ul>
+                }
+
+                <table class="table table-striped table-bordered">
+                    <tbody>
+                        <tr><td style="width:155px;">Coil Number</td><td>@Model.current_all_produced_coil.production_coil_no</td></tr>
+
+                        @if (Model.current_all_produced_coil.production_coil_no != Model.current_all_produced_coil.tag_no && Model.current_all_produced_coil.tag_no != null)
+                        {
+                            <tr><td style="width:155px;">Tag Number</td><td>@Model.current_all_produced_coil.tag_no</td></tr>
+                        }
+
+                        <tr><td style="width:155px;">Weight</td><td>@Model.current_all_produced_coil.coil_weight</td></tr>
+                        <tr><td style="width:155px;">Gauge</td><td>@Math.Round(Convert.ToDecimal(Model.current_all_produced_coil.coil_thickness), 4)</td></tr>
+                        <tr><td style="width:155px;">Width</td><td>@Math.Round(Convert.ToDecimal(Model.current_all_produced_coil.coil_width), 4)</td></tr>
+                        <tr><td style="width:155px;">Length</td><td>@Model.current_all_produced_coil.coil_length</td></tr>
+                        <tr>
+                            <td style="width:155px;">Status</td>
+                            <td>
+                                @if (Model.current_coil_status != null)
+                                {
+                                    @Model.current_coil_status.description
+                                }
+                                else if (Model.current_inventory_reason != null)
+                                {
+                                    @Model.current_inventory_reason.reason
+                                }
+                            </td>
+                        </tr>
+                        <tr><td style="width:155px;">Load Card</td><td>@Model.char_load_id</td></tr>
+                        <tr>
+                            <td style="width:155px;">Location</td>
+                            <td>
+                                @Model.current_coil_yard_location.column @if (@Model.current_coil_yard_location.column != "")
+                                {<text>-</text>} @Model.current_coil_yard_location.row
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                Order Details
+            </div>
+
+            <div class="panel-body">
+                @if (Model.searched_coil_number != "" && Model.current_coil.order_no != 0)
+                {
+                    <table class="table table-striped table-bordered">
+                        <tbody>
+                            <tr><td style="width:155px;">Customer</td><td>@Model.current_coil.customer_order_line_item.customer.name</td></tr>
+                            <tr><td style="width:155px;">Order</td><td>@Model.current_coil.order_no - @Model.current_coil.line_item_no</td></tr>
+                            <tr><td style="width:155px;">Product Type</td><td>@Model.order_product_type.description</td></tr>
+                            <tr>
+                                <td style="width:155px;">Carrier Mode</td>
+                                <td>
+                                    @if (Model.coil_customer_ship_to != null)
+                                    {<text>@Model.coil_customer_ship_to.carrier_mode</text>}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:155px;">Packaging Type</td>
+                                <td>
+                                    @if (Model.current_packaging_type != null)
+                                    {<text>@Model.current_packaging_type.description</text>}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:155px;">Ship To Location Name</td>
+                                <td>
+                                    @if (Model.coil_customer_ship_to != null)
+                                    {<Text>@Model.coil_customer_ship_to.ship_to_location_name</Text>}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:155px;">Address</td>
+                                <td>
+                                    @if (@Model.coil_customer_ship_to != null)
+                                    {<text>@Model.coil_customer_ship_to.street_1</text>}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:155px;">Surface Critical</td>
+                                <td>
+                                    @if (@Model.current_coil.customer_order_line_item.hb_setup.testing_surface_critical == null)
+                                    {<text>N</text>}
+                                else
+                                {@Model.current_coil.customer_order_line_item.hb_setup.testing_surface_critical}
+                                </td>
+                            </tr>
+                            <tr><td style="width:155px;">End Use</td><td>@Model.current_coil.customer_order_line_item.end_use</td></tr>
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p>Coil not on order</p>
+                }
+            </div>
+        </div>
+
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <span>Audit Trail</span>
+                <div style="display: inline; float: right;">
+                    <label for="sistersToggle" style="font-weight: 300;">Show Sister Coils</label>
+                    <label class="switch">
+                        <input type="checkbox" id="sistersToggle" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="panel-body">
+                @if (Model.coil_history != null)
+                {
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Production Coil Number</th>
+                                <th>Location</th>
+                                <th>Event</th>
+                                <th>Time</th>
+                                <th>Notes</th>
+                                <th>User</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditTrail">@BuildTableBody()</tbody>
+                    </table>
+                }
+                else
+                {
+                    <p>No history found</p>
+                }
+            </div>
+        </div>
+
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                Add Comment
+            </div>
+
+            <div class="panel-body">
+
+                <form action="/Coil/AddComment" method="post">
+
+                    <div class="form-group">
+                        <label>Add Comment for @Model.current_all_produced_coil.production_coil_no</label>
+                        <input class="form-control" id="comment" type="text" name="comment" value="" />
+                        <input type="hidden" name="production_coil_no" value="@Model.current_all_produced_coil.production_coil_no" />
+                    </div>
+
+                    <button class="btn btn-primary" type="submit">Add Comment</button>
+                </form>
+
+            </div>
+        </div>
+
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                Add Image
+            </div>
+
+            <div class="panel-body">
+                <form action="/Coil/UploadCoilImage" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Add Image for @Model.current_all_produced_coil.production_coil_no</label>
+                        <input name="upload_file" type="file" class="form-control" />
+                        <input type="hidden" name="production_coil_no" value="@Model.current_all_produced_coil.production_coil_no" />
+                    </div>
+                    <button class="btn btn-primary" type="submit">Add Image</button>
+                </form>
+
+                <br /><br />
+
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Production Coil No</th>
+                            <th>Add Datetime</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.coil_images.Count > 0)
+                        {
+                            foreach (var img in Model.coil_images)
+                            {
+                                <tr>
+                                    <td>
+                                        <a href="/Coil/ViewCoilImage?image_no=@img.image_no">
+                                            @{
+                                                var base64 = Convert.ToBase64String(img.image_data);
+                                                var imgSrc = String.Format("data:image/gif;base64,{0}", base64);
+                                            }
+                                            <img src="@imgSrc" style="max-width:150px;" />
+                                        </a>
+                                    </td>
+                                    <td>@img.production_coil_no</td>
+                                    <td>@img.add_datetime</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="3">No Images Uploaded</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        if (Model.loc == "C")
+        {
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    @if (Model.current_coil != null)
+                    {
+                        <text>Add Defect and Hold Coil on Order</text>
+                    }
+                    else
+                    {
+                        <text>Add Defect to Coil Off Order</text>
+                    }
+                </div>
+
+                <div class="panel-body">
+                    <form action="/Coil/HoldCoil" method="post">
+                        <div class="form-group">
+                            <label>
+                                @Model.current_all_produced_coil.production_coil_no
+                                @if (Model.current_coil.order_no != 0)
+                                {<text>On order: </text> @Model.current_coil.order_no <text>/ Coil Status: </text> @Model.current_coil_status.description}
+                            else
+                            {<text>Not on order / Inventory Status: </text> @Model.current_inventory_reason.reason}
+                            </label>
+                            @if ((Model.current_inventory_item != null || Model.current_coil.order_no != 0))
+                            // if search result exists && status not in defect/hold list
+                            {
+                                <select class="form-control" name="claim_reason_cd">
+                                    @foreach (var reason in Model.ScanwareHoldDefects)
+                                    {
+                                        <option value="@reason.claim_reason_cd">@reason.description</option>
+                                    }
+                                </select>
+
+                                <label>Comment</label>
+                                <input class="form-control" id="comment" type="text" name="comment" value="" />
+                                <input type="hidden" name="production_coil_no" value="@Model.current_all_produced_coil.production_coil_no" />
+                                <br />
+                                <button class="btn btn-primary" type="submit">Hold Coil</button>
+                            }
+                            else
+                            {
+                                <br /><br />
+                                <text>Please contact shipping admin to hold</text>
+                            }
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
+    }
+}
+
+<script>
+    const searchToggle = document.getElementById('searchToggle');
+    const searchLabel = document.getElementById('searchLabel');
+    const searchType = document.getElementById('searchType');
+    const coilLookup = document.getElementById('CoilLookup');
+    searchToggle.addEventListener('click', () => {
+        if (searchToggle.checked) {
+            searchLabel.innerText = 'Alias';
+            searchType.name = 'alias';
+            coilLookup.method = 'GET';
+        } else {
+            searchLabel.innerText = 'Coil Number';
+            searchType.name = 'production_coil_no';
+            coilLookup.method = 'POST';
+        }
+    });
+
+    $(document).ready(() => {
+   
+        const sistersToggle = document.getElementById('sistersToggle');
+
+        if (sistersToggle) {
+            const audit_trail = Array.from(document.getElementById('auditTrail').children);
+            const searched_coil_no = '@Model.searched_coil_number';
+            const hidden_coils_list = GenerateHiddenCoilList(audit_trail, searched_coil_no.trim());
+
+            sistersToggle.addEventListener('click', () => { audit_trail.forEach(el => ToggleHiddenCoils(hidden_coils_list, el, sistersToggle.checked)) });
+
+            // run on load to hide by default
+            audit_trail.forEach(el => ToggleHiddenCoils(hidden_coils_list, el, sistersToggle.checked));
+        }
+    });
+
+    function ToggleHiddenCoils(hidden_coils_list, child_coil) {
+        if (hidden_coils_list.includes(child_coil.children[0].textContent.trim())) {
+            child_coil.toggleAttribute('hidden');
+        }
+    }
+
+    function GenerateHiddenCoilList(audit_trail, searched_coil_no) {
+        return audit_trail.map(x => x.children[0].textContent.trim()).filter(x => !IsParentCoil(x, searched_coil_no));
+    }
+
+    function IsParentCoil(production_coil_no, searched_coil_no) {
+        if (production_coil_no == searched_coil_no || production_coil_no.length == 9) {     // retain identical coil numbers & all base coils
+            return true;
+        } else if (production_coil_no.length > searched_coil_no.length) {                   // discard coils consumed in other processes
+            return false;
+        }
+
+        for (let i = 9; i < production_coil_no.length; ++i) {                               // compare all letters after cons-coil-number
+            if (production_coil_no[i] != searched_coil_no[i]) return false;
+        }
+
+        return true;
+    }
+
+    function fillInputWithCoil() {
+        document.getElementById("searchType").value = event.target.value;
+    }
+</script>
+
+<style type="text/css">
+    .table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+        padding: 1px 8px;
+    }
+
+    .table {
+        margin-bottom: 0px;
+    }
+</style>
+
+@helper BuildTableBody()
+{
+    foreach (var hist in Model.coil_history.OrderByDescending(c => c.change_datetime))
+    {
+        <tr>
+            <td>@hist.production_coil_no</td>
+            <td>
+                @if (hist.coil_yard_column != "" && hist.coil_yard_column != null)
+                {<text>@hist.coil_yard_column - @hist.coil_yard_row</text>}
+            </td>
+            <td>@hist.action_description</td>
+            <td>@hist.change_datetime</td>
+            <td>
+                @if (hist.action_description == "Moved" && (hist.scanner_used == "N" || hist.scanner_used == null))
+                {<text>Not Scanned</text>}
+            else if (hist.action_description == "Moved" && (hist.scanner_used == "C"))
+            {<text>VIA Schedule List</text>}
+        else if (hist.action_description == "Moved" && (hist.scanner_used == "P"))
+        {<text>VIA Line Production List</text>}
+    else if (hist.action_description == "Moved" && (hist.scanner_used == "O"))
+    {<text>VIA Ship OP List</text>}
+else
+{@hist.comment}
+            </td>
+            <td>@hist.first_name @hist.last_name</td>
+            <td>@hist.change_datetime</td>
+        </tr>
+    }
+}

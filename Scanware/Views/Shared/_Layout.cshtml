@@ -1,0 +1,715 @@
+﻿@using Scanware.Data
+@using System.Diagnostics;
+@using Scanware.Ancestor;
+
+@{
+
+    function_level_security logged_in_user = new function_level_security(HttpContext.Current.Session["function_level_security"] as List<function_level_security>);
+
+
+
+    //if there is a user but session has been lost, redirect to login page.
+    if (User.Identity.Name != "" && HttpContext.Current.Session["application_security"] == null)
+    {
+        Response.Redirect("/Account/LogOff");
+    }
+
+
+    //var loc = "C";
+    //if (Session["app_location"] != null)
+    //{
+    //    loc = Session["app_location"].ToString();
+    //}
+
+    string loc = "";
+    string loc_long = "";
+    string test = "";
+    //if in dubug mode allow for switch - otherwise always assume production
+    if (Debugger.IsAttached)
+    {
+        if (Session["reg_location"] == null)
+        {
+            loc = Util.GetRegLoc();
+            Session["reg_location"] = loc;
+        }
+        else
+        {
+            loc = Session["reg_location"].ToString();
+        }
+
+        if (Session["reg_livetest"] == null)
+        {
+            test = Util.GetRegLiveTest();
+            Session["reg_livetest"] = test;
+        }
+        else
+        {
+            test = Session["reg_livetest"].ToString();
+        }
+    }
+    else
+    {
+        if (Session["reg_location"] == null)
+        {
+            loc = Util.GetRegLoc();
+            Session["reg_location"] = loc;
+        }
+        else
+        {
+            loc = Session["reg_location"].ToString();
+        }
+
+        test = "L";
+
+    }
+
+    if (loc == "B")
+    {
+        loc_long = "Butler";
+    }
+    else if (loc == "C")
+    {
+        loc_long = "Columbus";
+    }
+    else if (loc == "H")
+    {
+        loc_long = "Heartland";
+    }
+    else if (loc == "T")
+    {
+        loc_long = "Techs";
+    }
+    else if (loc == "S")
+    {
+        loc_long = "Sinton";
+    }
+    if (loc == "M")
+    {
+        loc_long = "Mexico";
+    }
+
+
+    if (test == "T")
+    {
+        test = " - Test";
+    }
+    else if (test == "L")
+    {
+        test = "";
+    }
+
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Steel Dynamics - Scanware</title>
+    <link href="../Images/favicon_sdi.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="../Images/favicon_sdi.ico" type="image/x-icon" rel="shortcut icon" />
+    <link href="../Images/favicon_sdi.ico" type="image/x-icon" rel="icon" />
+    <meta name="viewport" content="width=device-width" />
+
+    <script type="text/javascript" src="../Scripts/SigWebTablet.js"></script>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../Content/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+
+    <link href="../Content/metisMenu.min.css" rel="stylesheet">
+
+
+    <!-- Custom CSS -->
+    <link href="../Content/sb-admin-2.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="../Content/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- DataTables CSS -->
+    <link href="../Content/dataTables.bootstrap.css" rel="stylesheet">
+
+    <!-- DataTables Responsive CSS -->
+    <link href="../Content/dataTables.responsive.css" rel="stylesheet">
+
+    <link href="../Content/bootstrap-datepicker.css" rel="stylesheet">
+    <!--<link href="../Content/bootstrap-datetimepicker.css" rel="stylesheet">-->
+
+    <link href="../Content/chosen.css" rel="stylesheet" />
+
+    @if (Request.UserAgent.Contains("Windows NT 5.1") || Request.UserAgent.Contains("Windows CE"))
+    {
+        <link href="../Content/scanner.css" rel="stylesheet" type="text/css" />
+    }
+
+    <style type="text/css">
+        body {
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <script src="../Scripts/jquery.js"></script>
+    <div id="wrapper">
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <img src="/Images/SDILogo_small.png" style="height: 40px; width: 40px; display: inline; float: left; margin: 5px 0 0 10px;" />
+                <a class="navbar-brand" href="../Coil/">Scanware - @loc_long  @test </a>
+            </div>
+            <!-- /.navbar-header -->
+            @{
+
+                if (User.Identity.Name != "")
+                {
+                    <ul class="nav navbar-top-links navbar-right">
+                        <!-- /.dropdown -->
+                        <li class="dropdown">
+
+
+                            @if ((Request.UserAgent.Contains("Windows NT 5.1") || Request.UserAgent.Contains("Windows CE")) && !Request.UserAgent.Contains("Mozilla/4.0"))
+                            {
+                                <div class="scanner_logout">
+                                    <table>
+                                        <tr>
+                                            <td class="login-name">@User.Identity.Name</td>
+                                            <td class="logout-link">
+                                                <!--
+                                                    @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                                                {
+                                                    @Html.AntiForgeryToken()
+                                                    <a href="javascript:document.getElementById('logoutForm').submit()"><i class="fa fa-sign-out fa-fw"></i>Log off</a>
+                                                }
+                                                    -->
+                                                    <a href="/Account/LogOff">Log Off</a>
+
+
+
+
+
+                                            </td>
+                                        </tr>
+                                    </table>
+
+
+                                </div>
+                            }
+                            else
+                            {
+
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                    <i class="fa fa-user fa-fw"></i> @User.Identity.Name <i class="fa fa-caret-down"></i>
+
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-user">
+
+                                    <li id="PrinterLink">
+                                        <a href="/home/SetUserOptions"><i class="fa fa-print fa-fw"></i>Set User Options</a>
+                                    </li>
+
+                                    <li id="AboutLink">
+                                        <a href="/home/about"><i class="fa fa-user fa-fw"></i>About</a>
+                                    </li>
+
+                                    <li id="LogOffLink">
+
+                                        <!--
+                                                    @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                                                {
+                                                    @Html.AntiForgeryToken()
+                                                    <a href="javascript:document.getElementById('logoutForm').submit()"><i class="fa fa-sign-out fa-fw"></i>Log off</a>
+                                                }
+                                                    -->
+                                                    <a href="/Account/LogOff">Log Off</a>
+
+                                    </li>
+
+                                </ul>
+
+                            }
+
+
+                            <!-- /.dropdown-user -->
+                        </li>
+                        <!-- /.dropdown -->
+                    </ul>
+
+
+
+                    <!-- /.navbar-top-links -->
+
+                }
+
+            }
+
+            @if (Request.UserAgent.Contains("Windows NT 5.1") || Request.UserAgent.Contains("Windows CE"))
+            {
+                <div class="clear-div"> </div>
+            }
+
+            <div class="navbar-default sidebar" role="navigation">
+                <div class="sidebar-nav navbar-collapse">
+
+
+
+                    <ul class="nav" id="side-menu">
+
+                        <li class="tlc" id="tlc_coil">
+                            <a href="#" class="top-link"><i class="fa fa-info-circle fa-fw"></i> Coil</a>
+                            <ul class="nav nav-second-level">
+
+                                <li>
+                                    <a href="/Coil/Index">Coil Details</a>
+                                </li>
+                                <li>
+                                        <a href="/Coil/MoveCoil">Move Coil</a>
+                                </li>
+                                @if (loc == "C")
+                                {
+                                    <li>
+                                       <a href="/Coil/Packaging">Packaging</a>
+                                    </li>
+                                }
+                                <li>
+                                    <a href="/Coil/PrintLabel">Print Label</a>
+                                </li>
+                    <!--            <li>
+                                    <a href="/Coil/CoilsInColumn">Test</a>
+                                </li>-->
+
+                            </ul>
+
+                        </li>
+                         @if (logged_in_user.HasFunctionLevelSecurity("LISTS") && (loc != "M"))
+                            {
+                            <li class="tlc" id="tlc_lists">
+                                <a href="#" class="top-link"><i class="fa fa-list fa-fw"></i> Lists</a>
+                                <ul class="nav nav-second-level">
+                                    @if (loc == "C")
+                                    {
+                                        <li>
+                                            <a href="/Coil/LineProduction">Production</a>
+                                        </li>
+
+                                        <li>
+                                            <a href="/Coil/Schedule">Schedule</a>
+                                        </li>
+                                    }
+                                    @if (loc != "C")
+                                    {
+                                        <li style="display: inline-flex">
+                                            <a href="javascript:GalvSched();">Galv Schedule (573) </a>
+                                                <select name="FooBarDropDown" id="galv_line">
+                                                    <option value="1" selected>Galv 1</option>
+                                                    <option value="2">Galv 2</option>
+                                                    <option value="3">Galv 3</option>
+                                                </select>
+
+                                        </li>
+                                    
+                                        <li>
+                                            <a href="/Coil/ViewRevMillSchedule">Reversing Mill Schedule (427)</a>
+                                        </li>
+                                        <li>
+                                            <a href="/Coil/ViewTempMillSchedule">Temper Mill Schedule (426)</a>
+                                        </li>
+                                    }
+
+                                </ul>
+
+                            </li>
+                         }
+
+                            <li class="tlc" id="tlc_inventory">
+                                <a href="#" class="top-link"><i class="fa fa-book fa-fw"></i> Inventory</a>
+                                <ul class="nav nav-second-level">
+
+                                        <li>
+                                            <a href="/Inventory/LocationReconcile">Location Audit</a>
+                                        </li>
+                               
+                                </ul>
+
+                            </li>
+
+
+                        
+                        @if (loc != "C" && logged_in_user.HasFunctionLevelSecurity("ZINC"))
+                        {
+                            <li class="tlc" id="tlc_zinc">
+                                <a href="#" class="top-link"><i class="fa fa-magnet fa-fw"></i> Zinc</a>
+                                <ul class="nav nav-second-level">
+
+                                    <li>
+                                        <a href="/Zinc/IngotStatus">Ingot Status</a>
+                                    </li>
+                                    <li>
+                                        <a href="/Zinc/ConsumeIngot">Consume Ingot</a>
+                                    </li>
+                                    <li>
+                                        <a href="/Zinc/ZincInventory">Inventory</a>
+                                    </li>
+
+                                </ul>
+
+                            </li>
+                        }
+                            @if (logged_in_user.HasFunctionLevelSecurity("SHIPPING"))
+                            {
+                            <li class="tlc" id="tlc_ship">
+                                <a href="#" class="top-link"><i class="fa fa-truck fa-fw"></i> Ship</a>
+                                <ul class="nav nav-second-level">
+                                    
+
+                                        @if (!Request.UserAgent.Contains("Windows NT 5.1") && !Request.UserAgent.Contains("Windows CE"))
+                                        {
+                                            <li>
+                                                <a href="/Shipping/Index">Activity</a>
+                                            </li>
+                                        }
+                                        @if (!Request.UserAgent.Contains("Windows NT 5.1") && !Request.UserAgent.Contains("Windows CE"))
+                                        {
+                                            if (loc != "C")
+                                            {
+                                                <li>
+                                                    <a href="/Shipping/ViewSchedule">Schedule</a>
+                                                </li>
+                                            }
+                                        }
+                                        @if (logged_in_user.HasFunctionLevelSecurity("SCALEHOUSE") && !Request.UserAgent.Contains("Windows NT 5.1"))
+                                        {
+
+                                            <li>
+                                                    <a href="/Shipping/CheckInOutTruck">Check In/Out Truck</a>
+                                            </li>
+
+                                            if (loc == "C")
+                                            {
+                                                <li>
+                                                    <a href="/Shipping/CoilReauthorization">Coil Re-Authorization</a>
+                                                </li>
+                                            }
+                                        }
+                                        <li>
+                                            <a href="/Shipping/LoadTruck">Load Truck</a>
+                                        </li>
+                                        <li>
+                                            <a href="/Shipping/LoadRail">Load Rail</a>
+                                        </li>
+                                        @if (loc == "C")
+                                        {
+                                            <li>
+                                                <a href="/Shipping/ShipOPCoils">OP Coils</a>
+                                            </li>
+
+                                            <li>
+                                                <a href="/Shipping/OPReturnValidate">OP Return Validate</a>
+                                            </li>
+                                        }
+                                        @if (logged_in_user.HasFunctionLevelSecurity("PRINTRAILLOADS") && !Request.UserAgent.Contains("Windows NT 5.1"))
+                                        {
+                                            <li>
+                                                <a href="/Shipping/PrintRailLoads">Print Rail Loads</a>
+                                            </li>
+                                        }
+                                    
+                                    <li>
+                                        <a href="/Shipping/LoadDetails">Load Details</a>
+                                    </li>
+
+                                </ul>
+
+                            </li>
+                            }
+                        @if (logged_in_user.HasFunctionLevelSecurity("SHIP_WAREHOUSE"))
+                        {
+                            <li class="tlc" id="tlc_ship">
+                                <a href="#" class="top-link"><i class="fa fa-car fa-fw"></i> Ship </a>
+                                <ul class="nav nav-second-level">
+                               
+
+                                        @if (!Request.UserAgent.Contains("Windows NT 5.1") && !Request.UserAgent.Contains("Windows CE"))
+                                        {
+                                            <li>
+                                                <a href="/WarehouseShipping/Index">Activity</a>
+                                            </li>
+                                        }
+
+                                        <li>
+                                            <a href="/WarehouseShipping/LoadTruck">Load Truck</a>
+                                        </li>
+                                            <li>
+                                                <a href="/WarehouseShipping/LoadRail">Load Rail</a>
+                                            </li>
+                                
+
+                                </ul>
+
+                            </li>
+                        }
+
+                            @if (logged_in_user.HasFunctionLevelSecurity("PAINT"))
+                            {
+
+
+                                <li class="tlc" id="tlc_paint">
+                                    <a href="#" class="top-link"><i class="fa fa-plus fa-fw"></i> Paint</a>
+                                    <ul class="nav nav-second-level">
+                                        @if (loc == "C")
+                                        {
+                                            <li>
+                                                <a href="/Paint/AddPaint">Add Paint</a>
+                                            </li>
+                                            <li>
+                                                 <a href="/Paint/MovePaint">Move Paint</a>
+                                            </li>
+                                        }
+                                        @if (loc != "C")
+                                        {
+                                             <li>
+                                                <a href="/Paint/ReceivePaint">Receive Paint</a>
+                                             </li>
+                                            <li>
+                                                <a href="/Paint/MovePaintButler">Move Paint</a>
+                                            </li>
+                                            <li>
+                                                <a href="/Paint/PaintContainerDetails">Container details</a>
+                                            </li>
+                                        }
+                                    </ul>
+
+                                </li>
+
+                            }
+
+                            @if (logged_in_user.HasFunctionLevelSecurity("ADDRAILCAR") || logged_in_user.HasFunctionLevelSecurity("HOLDEMAIL") || logged_in_user.HasFunctionLevelSecurity("PAINT"))
+                            {
+                                <li class="tlc tlc-admin" id="tlc_admin">
+                                    <a href="#" class="top-link"><i class="fa fa-lock fa-fw"></i> Admin</a>
+                                    <ul class="nav nav-second-level">
+                                        @if (logged_in_user.HasFunctionLevelSecurity("ADDRAILCAR"))
+                                        {
+                                            <li>
+                                                <a href="/Admin/AddRailCar">Add Rail Car</a>
+                                            </li>
+                                       
+
+                                            <li>
+                                                <a href="/Admin/RailCars">Rail Cars</a>
+                                            </li>
+                                        }
+
+                                        @if (logged_in_user.HasFunctionLevelSecurity("HOLDEMAIL"))
+                                        {
+                                            if (loc == "C")
+                                            {
+                                              <li>
+                                                  <a href="/Admin/HoldEmail">Hold Email Send Tos</a>
+                                              </li>
+                                            }
+                                        }
+
+                                        
+                                        @if (logged_in_user.HasFunctionLevelSecurity("PAINT"))
+                                        {
+                                             <li>
+                                                    <a href="/Admin/PrintPaintLocation">Print Paint Locations</a>
+                                             </li>
+                                        }
+                                    </ul>
+
+                                </li>
+                            }
+
+			    @if (Request.UserAgent.Contains("Mozilla/4.0"))
+       {
+				
+                                <li class="tlc tlc-admin" id="tlc_admin">
+                                    <a href="#" class="top-link"><i class="fa fa-lock fa-fw"></i> Account</a>
+                                    <ul class="nav nav-second-level">
+                                        @if (logged_in_user.HasFunctionLevelSecurity("ADDRAILCAR"))
+                                        {
+                                            <li>
+                                                <a href="/Account/LogOff">Log Off</a>
+                                            </li>
+                                       
+                                        }
+
+                                    </ul>
+
+                                </li>
+       }
+
+
+                            @if (!Request.UserAgent.Contains("Windows NT 5.1") && !Request.UserAgent.Contains("Windows CE") && (loc != "M")) //if not using scanner
+                            {
+                                <li class="tlc tlc-admin" id="tlc_reports">
+                                    <a href="/Home/Reports" class="top-link"><i class="fa fa-search fa-fw"></i> Reports</a>
+                                </li>
+                            }
+
+                        
+                    </ul>
+
+
+                    @if (Request.UserAgent.Contains("Windows NT 5.1") || Request.UserAgent.Contains("Windows CE"))
+                    {
+                        <div class="clear-div">   </div>
+                    }
+
+                </div>
+                <!-- /.sidebar-collapse -->
+            </div>
+            <!-- /.navbar-static-side -->
+        </nav>
+
+        <!-- Page Content -->
+        <div id="page-wrapper">
+            <div class="container-fluid" style="padding-right: 80px;">
+                <div class="row">
+
+                    <section class="content-wrapper main-content clear-fix">
+                        @RenderBody()
+                    </section>
+
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.container-fluid -->
+        </div>
+        <!-- /#page-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+    <!-- jQuery -->
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../Scripts/bootstrap.js"></script>
+
+    <script type="text/javascript">
+
+        function GalvSched()
+        {
+            var GalvLine = $(galv_line).val();
+            window.location.href = '../Coil/ViewGalvSchedule?galv_line=' + GalvLine
+        }
+
+    </script>
+
+    @if (!Request.UserAgent.Contains("Mozilla/4.0")) //if not taylor computer use menu js
+    {
+
+        <!-- Metis Menu Plugin JavaScript -->
+        <script src="../Scripts/metisMenu.min.js"></script>
+
+    }
+
+
+
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../Scripts/sb-admin-3.js"></script>
+
+    <script src="../Scripts/chosen.jquery.min.js"></script>
+    <script src="../Scripts/init.js"></script>
+    
+<style type="text/css">
+    .navbar-right {
+        float:right;
+    }
+
+    /* toggle switch */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        border-radius: 15px;
+        position: absolute;
+        cursor: pointer;
+        top: -3px;
+        left: 0;
+        right: 0;
+        bottom: 3px;
+        background-color: #ccc;
+        transition: .15s;
+    }
+
+    .slider:before {
+        border-radius: 50%;
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: .15s;
+    }
+
+    input[type="checkbox"]:checked + input[type="hidden"] + .slider,
+    input[type="checkbox"]:checked + .slider {
+        background-color: #7BC86C;
+    }
+
+    input[type="checkbox"]:focus + input[type="hidden"] + .slider,
+    input[type="checkbox"]:focus + .slider {
+        box-shadow: 0 0 1px #7BC86C;
+    }
+
+    input[type="checkbox"]:checked + input[type="hidden"] + .slider:before,
+    input[type="checkbox"]:checked + .slider:before {
+        transform: translateX(20px);
+    }
+</style>
+    
+ @if (Request.UserAgent.Contains("Mozilla/4.0")) //if taylor computer special css for old IE
+ {
+
+        <style type="text/css">
+
+            #wrapper .sidebar .nav li a{
+                padding-left:0px;
+                font-size:10px;
+            }
+            #wrapper .sidebar .nav li{
+                width:100px;
+            }
+
+            .scanner_logout{
+	
+
+		
+            }
+	
+	
+        </style>
+
+    }
+
+
+
+</body>
+
+
+
+
+
+</html>

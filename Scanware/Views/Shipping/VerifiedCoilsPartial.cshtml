@@ -1,0 +1,36 @@
+﻿
+<table class="table table-striped table-bordered" id="coils">
+
+    @foreach (var coil in Model)
+    {
+        <tr id="coilRow-@coil.production_coil_no.Trim()">
+            <td id="coilNumber-@coil.production_coil_no.Trim()">
+
+                <a href="/Coil/Index?production_coil_no=@coil.production_coil_no">@coil.production_coil_no</a> &emsp;&emsp; @coil.coilLocation &emsp;&emsp;
+
+                @{
+                    System.DateTime dtComp = new DateTime(2019, 1, 1);
+                    string hiddenShippedIcon = "hidden";
+                    string hiddenPaperworkIcon = "hidden";
+                }
+
+                @if (coil.coilShipTag != null)
+                {
+                    hiddenShippedIcon = "";
+                }
+
+                @if (coil.coilOnPaperwork != null)
+                {
+                    hiddenPaperworkIcon = "";
+                }
+                @if (coil.verified > dtComp)
+                {
+                    hiddenShippedIcon = "";
+                    hiddenPaperworkIcon = "";
+                }
+                <i class="glyphicon glyphicon-check checkIcon @hiddenShippedIcon" title="Shipped Tag Checked" id="shippedIcon-@coil.production_coil_no.Trim()"></i>
+                <i class="glyphicon glyphicon-check checkIcon2 @hiddenPaperworkIcon" title="Coil Tag Checked" id="paperworkIcon-@coil.production_coil_no.Trim()"></i>
+            </td>
+        </tr>
+                    }
+</table>

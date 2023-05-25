@@ -1,0 +1,106 @@
+﻿@{
+    ViewBag.Title = "Paint Status";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Paint Container Details</h2>
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Error</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            Message
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Message</p>
+                        </div>
+                    </div>
+}
+
+    <div class="panel panel-primary">
+    <div class="panel-heading">
+        Paint Container Details
+    </div>
+
+    <div class="panel-body">
+
+        <form action="/Paint/PaintContainerDetails" method="post" id="PaintContainerDetails" name="PaintContainerDetails">
+    
+            <div class="form-group">
+            <label>Paint Container Barcode</label>
+            <input class="form-control" id="barcode_string" type="text" name="barcode_string" value="@Model.current_paint_barcode" />
+            </div>
+    
+            <button class="btn btn-primary" type="submit">Search</button>
+        </form>
+
+    </div>
+</div>
+
+@if (Model.Error == null)
+{
+    if (Model.current_paint_inventory != null)
+    {
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                Container Details - @Model.current_paint_inventory.vendor_container_id
+            </div>
+
+            <div class="panel-body">
+
+                <table class="table table-striped table-bordered">
+                    <tbody>
+
+                        <tr><td style="width:155px;">Container Vendor ID</td><td>@Model.current_paint_inventory.vendor_container_id</td></tr>
+                        <tr><td style="width:155px;">Paint Code</td><td>@Model.current_paint_inventory.paint_cd</td></tr>
+                        <tr>
+                            <td style="width:155px;">Status</td>
+                            <td>
+                                    @if( Model.current_paint_inventory.container_status == "C")
+                                    {
+                                       <text> Closed </text>
+                                    }
+                                    else if(Model.current_paint_inventory.container_status == "O")
+                                    {
+                                       <text> Open </text>
+                                    }
+                            </td>
+                        </tr>
+                        <tr><td style="width:155px;">Batch No</td><td>@Model.current_paint_inventory.batch_no</td></tr>
+                        <tr><td style="width:155px;">Location</td><td>@Model.current_paint_location.loc_description</td></tr>
+                        <tr><td style="width:155px;">Gallons</td><td>@Model.current_paint_inventory.number_of_gallons</td></tr>
+                        <tr><td style="width:155px;">Received Date</td><td>@Model.current_paint_inventory.received_date</td></tr>
+                        <tr><td style="width:155px;">Initials</td><td>@Model.current_paint_inventory.initials</td></tr>
+                        <tr><td style="width:155px;">Inventory Problem</td><td>@Model.current_inventory_status</td></tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+        </div>
+
+    }
+
+}
+<style type="text/css">
+
+    .table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+        padding:1px 8px;
+    }
+
+    .table {
+        margin-bottom:0px;
+    }
+
+</style>

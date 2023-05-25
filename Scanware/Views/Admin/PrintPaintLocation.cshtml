@@ -1,0 +1,62 @@
+﻿@{
+    ViewBag.Title = "RailCars";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Print Paint Locations</h2>
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Error</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            Message
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Message</p>
+                        </div>
+                    </div>
+}
+
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Print Paint Location
+    </div>
+
+    <div class="panel-body">
+
+        <form action="/Admin/PrintPaintLocationSubmit" method="post" id="InsertPaint" name="InsertPaint">
+           
+          <div class="form-group">
+          <label>Location</label>
+            <select name="location_cd" class="form-control">     
+            <option value="0">Select Location</option>                     
+               @{
+               
+                   foreach (var location in Model.paint_locations)
+                   {                  
+                       <option value="@location.location_cd" @if(Model.current_paint_location.location_cd == location.location_cd){<text>selected</text>}>@location.loc_description</option>
+                   }
+               }
+            </select>
+          </div>
+
+
+            <button class="btn btn-primary" type="submit">Print</button>
+
+        </form>
+              
+    </div>
+</div>

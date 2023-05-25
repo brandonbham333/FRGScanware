@@ -1,0 +1,183 @@
+﻿@{
+    ViewBag.Title = "ShipOPCoils";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Ship OP Coils</h2>
+
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+        <div class="panel-heading">
+            Error
+        </div>
+        <div class="panel-body">
+            <p>@Model.Error</p>
+        </div>
+    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+        <div class="panel-heading">
+            Message
+        </div>
+        <div class="panel-body">
+            <p>@Model.Message</p>
+        </div>
+    </div>
+}
+
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Outbound - SDI to Processor
+        <div style="display: inline; float: right;">
+            <label for="showHotCoils" style="font-weight: 300;">Hot Coils Only</label>
+            <label class="switch">
+                <input type="checkbox" id="showHotCoils" name="showHotCoils" style="margin-left: 10px;" />
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="panel-body">
+        <form action="/Shipping/ShipOPCoils" method="get">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="location_column">Filter by Area</label>
+                    <select name="location_column" onchange='this.form.submit()' class="form-control">
+                        <option value="">View All</option>
+                        @foreach (var column in Model.distinct_location_columns)
+                        {
+                            <option value="@column" @if (Model.searched_location_column == column) { <text> selected</text>}>@column</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="ship_to_location_name">Filter by Processor</label>
+                    <select name="ship_to_location_name" onchange='this.form.submit()' class="form-control">
+                        <option value="">View All</option>
+                        @foreach (var ship_to_location_name in Model.distinct_ship_to_location_names)
+                        {
+                            <option value="@ship_to_location_name" @if (Model.searched_ship_to_location_name == ship_to_location_name) { <text> selected </text> }>
+                                @ship_to_location_name
+                            </option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </form>
+        <br />
+        <form action="/Shipping/ShipOutboundCoils" method="post">
+            <div class="form-group">
+                <button class="btn btn-primary" type="submit" style="margin: 10px 0 0 15px;">Ship Coil(s)</button>
+                <br />
+                <br />
+                <label>Outbound - SDI to Processor <span class="hot_coil" style="display:inline; font-size: 1.5rem; font-weight: 200;">( RED highlight indicates HOT coil )</span></label>
+                <table class="table table-striped table-bordered increase_font">
+                    <thead>
+                        <tr><th></th><th>Coil</th><th>PES</th><th>Processor</th><th>Weight</th><th>Location</th><th>Order</th><th>Load</th></tr>
+                    </thead>
+                    <tbody id="outbound_coils">
+                        @if (Model.outbound_op_coils == null || Model.outbound_op_coils.Count == 0)
+                        {
+                            <tr><td colspan="8" style="text-align:center;">No outbound coils</td></tr>
+                        }
+                        else
+                        {
+                            foreach (var coil in Model.outbound_op_coils)
+                            {
+                                <tr @if (coil.is_hot != null) { <text> class="hot_coil" </text> }>
+                                    <td>
+                                        <input type="checkbox" name="production_coil_nos" value="@coil.production_coil_no" />
+                                    </td>
+                                    <td>
+                                        <a href="/Coil/Index?production_coil_no=@coil.production_coil_no">
+                                            @coil.production_coil_no @if (coil.coil_alias != null)
+                                                {<text> / @coil.coil_alias</text>}
+                                        </a>
+                                    </td>
+                                    <td>@coil.pes_cd</td>
+                                    <td>@coil.ship_to_location_name</td>
+                                    <td>@coil.coil_weight</td>
+                                    <td>@coil.column - @coil.row</td>
+                                    <td>@coil.order_no</td>
+                                    <td>@coil.char_load_id</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            Inbound - Processor to SDI
+        </div>
+        <div class="panel-body">
+            <div class="form-group">
+                <label>Inbound - Processor to SDI <span class="return_auto" style="display:inline; font-size: 1.5rem; font-weight: 200;">( RED highlight is Automotive. WEIGHT must be validated )</span></label>
+                <table class="table table-striped table-bordered increase_font">
+                    <thead>
+                        <tr><th>Coil</th><th>PES</th><th>Weight</th><th>Location</th><th>Next Facility</th><th>Scheduled</th><th>Date Produced</th><th>Order</th></tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.outbound_op_coils == null || Model.outbound_op_coils.Count == 0)
+                        {
+                            <tr><td colspan="8" style="text-align:center;">No outbound coils</td></tr>
+                        }
+                        else
+                        {
+                            foreach (var coil in Model.inbound_op_coils)
+                            {
+                                <tr>                       
+                                    <td @if(coil.end_use_market_name.Contains("Automotive") && (coil.next_facility_cd == "I" || coil.next_facility_cd == "")){<text> class="return_auto"</text>}><a href="/Coil/Index?production_coil_no=@coil.production_coil_no">@coil.production_coil_no @if (coil.coil_alias != null) { <text> / @coil.coil_alias</text>}</a></td>
+                                    <td @if(coil.end_use_market_name.Contains("Automotive") && (coil.next_facility_cd == "I" || coil.next_facility_cd == "")){<text> class="return_auto"</text>}>@coil.pes_cd</td>
+                                    <td @if(coil.end_use_market_name.Contains("Automotive") && (coil.next_facility_cd == "I" || coil.next_facility_cd == "")){<text> class="return_auto"</text>}>@coil.coil_weight</td>
+                                    <td @if(coil.end_use_market_name.Contains("Automotive") && (coil.next_facility_cd == "I" || coil.next_facility_cd == "")){<text> class="return_auto"</text>}>@coil.column - @coil.row</td>
+                                    <td @if(coil.end_use_market_name.Contains("Automotive") && (coil.next_facility_cd == "I" || coil.next_facility_cd == "")){<text> class="return_auto"</text>}>@coil.next_facility_cd</td>
+                                    <td @if(coil.end_use_market_name.Contains("Automotive") && (coil.next_facility_cd == "I" || coil.next_facility_cd == "")){<text> class="return_auto"</text>}>@coil.scheduled_ind</td>
+                                    <td @if(coil.end_use_market_name.Contains("Automotive") && (coil.next_facility_cd == "I" || coil.next_facility_cd == "")){<text> class="return_auto"</text>}>@coil.produced_dt_stamp</td>
+                                    <td @if(coil.end_use_market_name.Contains("Automotive") && (coil.next_facility_cd == "I" || coil.next_facility_cd == "")){<text> class="return_auto"</text>}>@coil.order_no</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const hotToggle = document.getElementById('showHotCoils');
+    const coldCoils = Array.from(document.getElementById('outbound_coils').children).filter(x => !x.classList.contains('hot_coil'));
+    hotToggle.addEventListener('change', (e) => {
+        if (e.target.checked) {
+            coldCoils.forEach(el => el.classList.add('hide'));
+        } else {
+            coldCoils.forEach(el => el.classList.remove('hide'));
+        }
+    });
+</script>
+
+<style type="text/css">
+    .return_auto {
+        background-color: #d9534f;
+        color: white;
+    }
+
+    .hot_coil {
+        background-color: #d9534f !important;
+        color: white;
+    }
+
+    .hot_coil a { color: darkblue; }
+
+    .hide { display: none !important; }
+</style>

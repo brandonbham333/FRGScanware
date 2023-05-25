@@ -1,0 +1,134 @@
+﻿@{
+    
+            ViewBag.Title = "SetDefaultPrinter";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Set User Options</h2>
+
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Error</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            Message
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Message</p>
+                        </div>
+                    </div>
+}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Set User Options
+    </div>
+
+    <div class="panel-body">
+
+        <form action="/Home/SetUserOptions" method="post" id="SetPrinter" name="SetPrinter">
+           
+          <div class="form-group">
+          <label>Default Zebra Printer</label>
+            <select name="zebra" onchange='' class="form-control">     
+            <option value="">Select Printer</option>                     
+               @{
+               
+                   foreach (var printer in Model.zebra_printers) 
+                   {                  
+                       <option value="@printer.pk" @if (Model.selected_zebra_printer != null && Model.selected_zebra_printer.path == printer.path){<text>selected</text>} >@printer.description</option>
+                   }
+               }
+            </select>
+          </div>
+
+          <div class="form-group">
+          <label>Default Network Printer</label>
+            <select name="network" onchange='' class="form-control">     
+            <option value="">Select Printer</option>                     
+               @{
+               
+                   foreach (var printer in Model.network_printers)
+                   {                  
+                       <option value="@printer.pk" @if (Model.selected_network_printer != null && Model.selected_network_printer.path == printer.path){<text>selected</text>} >@printer.description</option>
+                   }
+               }
+            </select>
+          </div>
+
+            <div class="form-group">
+                <label>Location (Used if filtering Coil Yard Columns)</label>
+                <select name="from_freight_location" onchange='' class="form-control">
+                    <option value="">Select Location</option>
+
+                    @foreach (var freight_location in Model.from_freight_locations)
+                    {
+                        <option value="@freight_location.from_freight_location_cd" @if (Model.selected_from_freight_locations != null && Model.selected_from_freight_locations.from_freight_location_cd == freight_location.from_freight_location_cd) { <text> selected</text>}>@freight_location.from_frt_description</option>
+                    }
+
+
+
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Bay</label>
+                <select name="selected_bays" class="form-control" multiple="multiple">
+                    <option value="">Select Bay</option>
+                    @{
+
+                        foreach (var bays in Model.CoilYardBays)
+                        {
+                            bool x = Model.isSelectedBay(bays.bay_cd);
+                            <option value="@bays.bay_cd" @if (Model.selected_bays != null && x) { <text> selected</text>}>@bays.bay_desc</option>
+                        }
+                    }
+                </select>     
+            </div>
+
+            <input type="text" name="updated" onchange='' class="form-control hidden" value="1" hidden/>  
+
+
+            <div class="form-group">
+                <label>User Initials</label>
+
+                <input type="text" name="initials" class="form-control" value="@Model.user_initials">
+            </div>
+            <label>Rail User</label>
+
+            <div class='is-grouped'>
+                <input type="radio" name="israiluser" value="True" @if(Model.isRailUser){<text>checked</text>}>   Yes
+                <input type="radio" name="israiluser" value="False" @if(!Model.isRailUser){<text>checked</text>}>    No
+            </div>
+
+            <label>Zinc Default Line</label>
+            <div class='is-grouped'>
+                <input type="radio" name="defaultZincLine" value="1" @if (Model.default_zinc_line == "1") { <text> checked</text>}> Galv 1
+                <input type="radio" name="defaultZincLine" value="2" @if (Model.default_zinc_line == "2") { <text> checked</text>}> Galv 2
+            </div>
+
+         <button class="btn btn-primary" type="submit">Update</button>
+
+        </form>
+
+    </div>
+</div>
+
+<style>
+    .is-grouped
+    {
+        margin: 5px;
+    }
+</style>

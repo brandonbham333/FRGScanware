@@ -1,0 +1,603 @@
+﻿@{
+    ViewBag.Title = "LoadRail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using Scanware.Data
+@{
+   
+    function_level_security logged_in_user = new function_level_security(HttpContext.Current.Session["function_level_security"] as List<function_level_security>);
+
+}
+
+
+<h2>Load Rail</h2>
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Error</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            Message
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Message</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.shipment == null)
+{
+    
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Rail Load Lookup
+    </div>
+
+    <div class="panel-body">
+
+        <form action="/Shipping/LoadRail" method="get" id="RailLookup" name="RailLookup">
+    
+            <div class="form-group">
+            <label>Load Card #</label>
+            <input class="form-control" id="char_load_id" type="text" name="char_load_id" value="" />
+            </div>
+    
+            <button class="btn btn-primary" type="submit">Search</button>
+        </form>
+
+    </div>
+</div>
+    
+    
+    <div class="panel panel-primary">
+    <div class="panel-heading">
+        Open Rail Loads (@Model.shipment_loads_rail.Count)
+    </div>
+
+    <div class="panel-body">
+
+        
+        <table class="table table-striped table-bordered increase_font">
+            <thead>
+                                        <tr>
+                                            <th>Load No</th>
+                                            <th>Rail Car</th>
+                                            <th>Started</th>
+                                            <th>Change User</th>
+
+                                        </tr>
+            </thead>
+        <tbody>
+
+            @if(Model.shipment_loads_rail.Count > 0){
+                
+                foreach (var shipment in Model.shipment_loads_rail)
+                {
+                    <tr>
+                        <td><a href="/Shipping/LoadRail?char_load_id=@shipment.char_load_id">@shipment.char_load_id</a></td>
+                        <td>@shipment.vehicle_no</td>
+                        <td>@shipment.change_datetime</td>
+                        <td>@shipment.change_user_name</td>
+                    </tr>
+    
+                }
+                
+            }
+            else{
+                <tr><td colspan="4">No open rail loads</td></tr>
+            }
+
+              
+        </tbody>
+        </table>
+        </div>
+        </div>
+
+        
+    <meta http-equiv="IBrowse_ScannerNavigate" content="Javascript:OnScan('%s','%s','%s');" />   
+    
+    <script type="text/javascript">
+
+
+        function OnScan(data1, type1, time1) {
+            //if load card is not yet entered
+            var loadCard = data1;
+
+            if (loadCard.indexOf(";") != -1) {
+                loadCard = loadCard.split(";")[0];
+            }
+
+            loadCard = loadCard.toUpperCase();
+
+            document.getElementById("char_load_id").value = loadCard;
+
+            //document.RailLookup.action = '/Shipping/RailLookup/' + RailLookup.elements['char_load_id'].value;
+            document.RailLookup.submit();
+        }
+    </script>
+    
+    
+    if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57"))
+    { //if using zebra scanner
+
+    <script type="text/javascript" charset="utf-8" src="../Scripts/ebapi-modules.js"></script>
+    <script type="text/javascript">
+
+
+        $(document).ready(function () {
+            EB.Barcode.enable({ allDecoders: true }, fnBarcodeScanned); //enable 
+        });
+
+        function fnBarcodeScanned(jsonObject) {
+
+            //if load card is not yet entered
+            var loadCard = jsonObject.data;
+
+            if (loadCard.indexOf(";") != -1) {
+                loadCard = loadCard.split(";")[0];
+            }
+
+            loadCard = loadCard.toUpperCase();
+
+            document.getElementById("char_load_id").value = loadCard;
+
+            //document.RailLookup.action = '/Shipping/RailLookup/' + RailLookup.elements['char_load_id'].value;
+            document.RailLookup.submit();
+
+        }
+
+    </script>
+    }
+    
+    
+
+}
+else if (Model.shipment != null && Model.shipment.vehicle_no == null)
+{
+ 
+    <div class="panel panel-primary">
+    <div class="panel-heading">
+        Start Load Lookup
+    </div>
+
+    <div class="panel-body">
+
+        <form action="/Shipping/StartRailLoad" method="get" id="StartRailLoad" name="StartRailLoad">
+    
+            <div class="form-group">
+            <label>Load Card #</label>
+            <input class="form-control" id="char_load_id" type="text" name="char_load_id" value="@Model.shipment.char_load_id" />
+            </div>
+            
+            <div class="form-group">
+            <label>Brand</label>
+                
+            <select class="form-control" name="rail_car_brand">
+                <option value="">Select Brand</option>
+                @foreach (var rail_car_brand in Model.rail_car_brands)
+                {
+                    <option value="@rail_car_brand.brand">@rail_car_brand.brand</option>
+                }
+            </select>
+
+
+            </div>
+            <div class="form-group">
+            <label>Vehicle #</label>
+                
+
+                <input class="form-control" id="vehicle_no" type="text" name="vehicle_no" value="" />
+
+            </div>
+    
+
+            <button class="btn btn-primary" type="submit">Start Load</button>
+        </form>
+
+        <script type="text/javascript" language="javascript">
+            $(document).ready(function () {
+                $("#vehicle_no").focus();
+            });
+        </script>
+
+    </div>
+</div>
+       
+}
+else if (Model.shipment != null && Model.shipment.vehicle_no != null)
+{
+        
+    
+
+
+        if (Model.shipment.scale_time_out == null)
+            {
+
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                Verify Coil
+            </div>
+
+            <div class="panel-body">
+
+                <form action="/Shipping/VerifyCoil" method="post" id="CoilLookup" name="VerifyCoil">
+    
+                    <div class="form-group">
+                        <label>Ship Tag</label>
+                        <input class="form-control" name="ship_tag" id="ship_tag" type="text">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Coil Number</label>
+                        <input class="form-control" name="production_coil_no" id="production_coil_no" type="text">
+                    </div>
+                    
+                    <input class="form-control" name="char_load_id" id="verify_char_load_id" type="hidden" value="@Model.shipment.char_load_id">
+                    <input class="form-control" name="ScannerUsed" id="ScannerUsed" type="hidden" value="0">
+
+                    <button class="btn btn-primary" type="submit">Verify</button>
+                    <br /><br />
+                    <div class="form-group">
+                        <label>Un Verify</label>
+                        <input name="unverify" id="unverify" type="radio" value="true">
+                    </div>
+
+
+                </form>
+
+            </div>
+        </div>
+            
+        }
+
+        
+        
+       <div class="panel panel-primary">
+    <div class="panel-heading">
+        Load Details
+    </div>
+
+    <div class="panel-body">
+        
+        
+        @{
+        bool all_coils_verified = true;
+        string tag_nos = "";
+
+        foreach (var coil in Model.coils_in_shipment)
+        {
+            if (coil.coil_scanned_dt == null)
+            {
+
+                all_coils_verified = false;
+
+            }
+
+            if (coil.tag_no != "" && coil.tag_no != null)
+            {
+                tag_nos = tag_nos + coil.tag_no;
+            }
+
+        }
+
+        if (all_coils_verified == true && Model.shipment.scale_time_out == null)
+        {
+         
+  
+          
+            <form action="/Shipping/ShipRailLoad" method="post" id="ShipRailLoad" name="ShipRailLoad">
+    
+                    <input class="form-control" name="char_load_id" id="ship_char_load_id" type="hidden" value="@Model.shipment.char_load_id">
+                    <button class="btn btn-primary" type="submit">Ship @Model.shipment.char_load_id on @Model.shipment.vehicle_no</button>
+
+            </form>
+            
+                       
+            <br />
+            
+            
+            <script type="text/javascript">
+
+                $(document).ready(function () {
+
+                    var toShip = confirm("All coils are verified, complete load?");
+
+                    if (toShip == true) {
+                        document.ShipRailLoad.submit();
+                    }
+                });
+                </script>
+            
+               
+        }
+        }
+    
+
+        <table class="table table-striped table-bordered">
+            <thead>
+                                        <tr>
+                                            <th>Coil No</th>
+                                            <th>Location</th>
+                                            <th>Status</th>
+                                            <th>Pack Code</th>
+                                            <th>Change User</th>
+                                            <th>Verified Time</th>
+                                            
+                                        </tr>
+            </thead>
+        <tbody>
+
+            @foreach (var coil in Model.coils_in_shipment)
+            {
+                <tr>
+                    <td><a href="/Coil/Index?production_coil_no=@coil.production_coil_no">@coil.production_coil_no @if (coil.tag_no != null && coil.tag_no != "")
+                                                                                                                   { <text> / @coil.tag_no</text>}</a></td>
+                    <td>@coil.coil_yard_location</td>
+                    <td>@if (coil.coil_scanned_dt != null)
+                        {<text>Verified</text>}
+                        else
+                        {<text>Unverified</text>}</td>
+                    <td>@coil.packaging_description</td>
+                    <td>@coil.change_user_name</td>
+                    <td>@coil.coil_scanned_dt</td>
+                </tr>
+    
+            }
+
+              
+        </tbody>
+        </table>
+
+
+
+        <table class="table table-striped table-bordered">
+        <tbody>
+
+            <tr><td style="width:155px;"><strong>Load Card #</strong></td><td>@Model.shipment.char_load_id</td></tr>
+            <tr><td style="width:155px;"><strong>Rail Car</strong></td><td>@Model.shipment.vehicle_no</td></tr>
+            <tr><td style="width:155px;"><strong>Change User</strong></td><td>@Model.shipment.change_user_name</td></tr>
+            <tr><td style="width:155px;"><strong>Change Date</strong></td><td>@Model.shipment.change_datetime</td></tr>
+            
+            @if (Model.shipment.scale_time_out != null)
+            {
+                <tr><td style="width:155px;"><strong>Time Out</strong></td><td>@Model.shipment.scale_time_out</td></tr>
+            }
+            <tr></tr>
+
+                        
+        </tbody>
+        </table> 
+        
+        @if (1 == 1)
+        {
+
+
+            if (Model.shipment.scale_time_out != null)
+            {
+              <a class="btn btn-primary" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2fbill_of_lading_rail_5201&customer_id=@Model.shipment.customer_id&LoadID=@Model.shipment.load_id&rs:Command=Render" target="_blank">View BOL</a>   
+               <br /><br />
+            }
+            else
+            {
+             
+            <form action="/Shipping/CancelRailLoad" method="post" id="CancelRailLoad" name="CancelRailLoad">
+    
+                    <input class="form-control" name="char_load_id" id="cancel_char_load_id" type="hidden" value="@Model.shipment.char_load_id">
+                <button class="btn btn-danger" type="submit">Cancel Load @Model.shipment.char_load_id</button>
+
+            </form>
+            <br /><br />
+               
+            }
+        
+        
+        <div class="panel panel-primary">
+        <div class="panel-heading">
+            Shipment Load Images
+        </div>
+
+        <div class="panel-body">
+
+            <form action="/Shipping/UploadShipmentLoadImage" method="post" enctype="multipart/form-data">
+    
+                <div class="form-group">
+                <label>Add Image for @Model.shipment.char_load_id</label>
+                <input name="upload_file" type="file" class="form-control"  />
+                <input type="hidden" name="load_id" value="@Model.shipment.load_id" />
+                </div>
+    
+                <button class="btn btn-primary" type="submit">Add Image</button>
+            </form>
+
+            <br /><br />
+
+
+         @if (!Request.UserAgent.Contains("Windows NT 5.1"))
+         {
+                
+         <table class="table table-striped table-bordered">
+            <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Add User</th>
+                                            <th>Add Datetime</th>
+                                            
+                                        </tr>
+            </thead>
+        <tbody>
+
+            @if (Model.load_images.Count > 0)
+            {
+                foreach (var img in Model.load_images)
+                {
+                    <tr>
+                        <td><a href="/Shipping/ViewShipmentLoadImage?image_no=@img.image_no">
+                            @{
+                    var base64 = Convert.ToBase64String(img.image_data);
+                    var imgSrc = String.Format("data:image/gif;base64,{0}", base64);
+                            }
+
+                            <img src="@imgSrc" style="max-width:150px;"/>
+
+                            </a></td>
+                        <td>@img.add_user_name</td>
+                        <td>@img.add_datetime</td>
+                    </tr>
+    
+                }
+            }
+            else
+            {
+                <tr><td colspan="3">No Images Uploaded</td></tr>   
+            }
+              
+        </tbody>
+        </table>
+        
+         }
+
+
+        </div>
+    </div>
+
+
+            
+         
+            
+        
+        
+            
+            <meta http-equiv="IBrowse_ScannerNavigate" content="Javascript:OnScan('%s','%s','%s');" />   
+            
+            <script type="text/javascript">
+
+                var shipTagScanned = false;
+                var tag_nos = "@tag_nos";
+
+                function OnScan(data1, type1, time1) {
+                    //if load card is not yet entered
+                    var scanText = data1;
+
+
+                    //SA, SB - ship tag for hot band coil
+                    //SRSA, SRSB - ship tag for hot band coils returned for re-shipment
+                    if (scanText.substring(0, 1) == "S") {
+
+                        shipTagScanned = true;
+                        document.getElementById("ship_tag").value = scanText.toUpperCase();
+
+
+
+                        if ((scanText.substring(0, 1) == "S" && scanText.substring(3, 4) == "B")) {
+
+                            document.getElementById("ScannerUsed").value = 1;
+                            document.VerifyCoil.submit();
+
+                        }
+
+
+                        //if scanned text is a tag_no, auto submit for OP coils because the tags fall off.
+                        if (tag_nos.indexOf(scanText.substring(1)) >= 0) {
+                            document.getElementById("ScannerUsed").value = 1;
+                            document.VerifyCoil.submit();
+                        }
+
+                    }
+                    else {
+                        document.getElementById("production_coil_no").value = scanText.toUpperCase();
+                        if (shipTagScanned) {
+                            document.getElementById("ScannerUsed").value = 1;
+                            document.VerifyCoil.submit();
+                        }
+                    }
+                }
+
+
+
+          </script>
+            
+            
+         if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57"))
+         { //if using zebra scanner
+
+            <script type="text/javascript" charset="utf-8" src="../Scripts/ebapi-modules.js"></script>
+            <script type="text/javascript">
+
+
+                $(document).ready(function () {
+                    EB.Barcode.enable({ allDecoders: true }, fnBarcodeScanned); //enable 
+                });
+
+
+                var shipTagScannedTC = false;
+
+                function fnBarcodeScanned(jsonObject) {
+
+                    //if load card is not yet entered
+                    var scanText = jsonObject.data;
+
+                    //alert(scanText);
+                    //SA, SB - ship tag for hot band coil
+                    //SRSA, SRSB - ship tag for hot band coils returned for re-shipment
+                    if (scanText.substring(0, 1) == "S") {
+                        shipTagScannedTC = true;
+                        document.getElementById("ship_tag").value = scanText.toUpperCase();
+
+                        if ((scanText.substring(0, 1) == "S" && scanText.substring(3, 4) == "B")) {
+
+                            document.getElementById("ScannerUsed").value = 1;
+                            document.VerifyCoil.submit();
+
+                        }
+
+
+                        //if scanned text is a tag_no, auto submit for OP coils because the tags fall off.
+                        if (tag_nos.indexOf(scanText.substring(1)) >= 0) {
+                            document.getElementById("ScannerUsed").value = 1;
+                            document.VerifyCoil.submit();
+                        }
+
+
+                    }
+                    else {
+                        document.getElementById("production_coil_no").value = scanText.toUpperCase();
+                        if (shipTagScannedTC) {
+                            document.getElementById("ScannerUsed").value = 1;
+                            document.VerifyCoil.submit();
+                        }
+                    }
+
+                }
+
+            </script>
+            
+         }
+
+
+
+        }
+        
+    </div>
+</div>
+
+    
+    
+    
+    
+
+}
+
+
+

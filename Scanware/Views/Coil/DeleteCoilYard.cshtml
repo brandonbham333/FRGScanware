@@ -1,0 +1,87 @@
+﻿@using Scanware.Data
+@using Scanware.Ancestor;
+
+
+@{
+    ViewBag.Title = "DeleteCoilYard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    function_level_security logged_in_user = new function_level_security(HttpContext.Current.Session["function_level_security"] as List<function_level_security>);
+
+}
+
+<h2>Delete Coil Yard</h2>
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Error</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            Success
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Message</p>
+                        </div>
+                    </div>
+}
+
+
+
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Delete Coil Yard Locations
+    </div>
+
+    <div class="panel-body">
+
+        @if (logged_in_user.HasFunctionLevelSecurity("COILYARDDELETE"))
+        {
+
+        <form action="/Coil/DeleteCoilYardSubmit" method="post" id="DeleteCoilYardSubmit" name="DeleteCoilYardSubmit">
+           
+          <div class="form-group">
+          <label>Coil Numbers</label>
+            <textarea name="production_coil_nos" class="form-control" id="production_coil_no" rows="50" cols="20"></textarea>
+          </div>
+
+          <div class="form-group">
+          <label>Comment</label>
+            <input type="text" class="form-control" id="comment" name="comment" />
+          </div>
+            
+          <button class="btn btn-primary" type="submit">Delete Coil Yard Locations</button>
+
+        </form>
+        }
+        else{
+
+            <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>You do not have permission to access this page. Request IT add DELETECOILYARD Function Level Privilege</p>
+                        </div>
+                    </div>
+            
+        }
+        
+    </div>
+</div>
+    
+
+
+
+
+ 

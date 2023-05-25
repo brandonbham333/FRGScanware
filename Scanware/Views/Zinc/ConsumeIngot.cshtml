@@ -1,0 +1,165 @@
+﻿@model Scanware.Models.ZincModel
+@{
+    ViewBag.Title = "Zinc";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57"))
+{ //if using zebra scanner
+
+    <script type="text/javascript" charset="utf-8" src="../Scripts/ebapi-modules.js"></script>
+    <script type="text/javascript">
+
+
+        $(document).ready(function ()
+        {
+            EB.Barcode.enable({ allDecoders: true }, fnBarcodeScanned); //enable 
+        });
+
+        function fnBarcodeScanned(jsonObject)
+        {
+
+            var IngotNum = jsonObject.data;
+
+            if ((IngotNum.substring(0, 1) == ("D")) || (IngotNum.substring(0, 1) == ("B")) || (IngotNum.substring(0, 1) == ("G")) || (IngotNum.substring(0, 1) == ("R")) || (IngotNum.substring(0, 1) == ("O")))
+            {
+                IngotNum = IngotNum.toUpperCase();
+                document.getElementById("ingot_id").value = IngotNum;
+
+                document.ConsumeIngot.submit();
+            }
+
+        }
+
+    </script>
+}
+
+<h2>Ingot Details</h2>
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Error</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            Message
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Message</p>
+                        </div>
+                    </div>
+}
+@if (Model.consumed_ingot_id != null && Model.consumed_ingot_id != "")
+{
+    <div class="panel panel-green">
+        <div class="panel-heading">
+            Success
+        </div>
+        <div class="panel-body">
+            <p>@Model.consumed_ingot_id was consumed successfully</p>
+        </div>
+    </div>
+}
+
+    <div class="panel panel-primary">
+    <div class="panel-heading">
+        Consume Ingot 
+    </div>
+
+    <div class="panel-body">
+
+        <form action="/Zinc/ConsumeIngot" method="post" id="ConsumeIngot" name="ConsumeIngot">
+    
+            <div class="form-group">
+            <label>Ingot ID</label>
+            <input class="form-control" id="ingot_id" type="text" name="ingot_id" value="@Model.searched_ingot_id" />
+                <br><br>
+                <label>Zinc Default Line</label>
+                <div class='is-grouped'>
+                    <input type="radio" name="line" id="line" value="1" @if (Model.default_zinc_line == "1") { <text> checked</text>}> Galv 1
+                    <input type="radio" name="line" id="line" value="2" @if (Model.default_zinc_line == "2") { <text> checked</text>}> Galv 2
+                </div>
+            </div>
+    
+            <button class="btn btn-primary" type="submit">Consume</button>
+        </form>
+
+    </div>
+</div>
+
+@if (Model.Error == null)
+{
+    if (Model.searched_ingot_id != null && Model.searched_ingot_id != "")
+    {
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                Ingot Details - @Model.current_ingot.ingot_id
+            </div>
+
+            <div class="panel-body">
+
+                <table class="table table-striped table-bordered">
+                    <tbody>
+
+                        <tr><td style="width:155px;">Ingot Id</td><td>@Model.current_ingot.ingot_id</td></tr>
+                        <tr><td style="width:155px;">Weight</td><td>@Model.current_ingot.weight</td></tr>
+                        <tr>
+                            <td style="width:155px;">Status</td>
+                            <td>
+                                
+                                @if (Model.current_ingot != null)
+                                {
+                                    if( @Model.current_ingot.status_cd == "C")
+                                    {
+                                       <text> Consumed </text>
+                                    }
+                                    else if(@Model.current_ingot.status_cd == "T")
+                                    {
+                                       <text> Transferred </text>
+                                    }
+                                    else if (@Model.current_ingot.status_cd == "I")
+                                    {
+                                        <text> Inventory </text>
+                                    }
+
+                                }
+
+                            </td>
+                        </tr>
+                        <tr><td style="width:155px;">Added Datetime</td><td>@Model.current_ingot.add_datetime</td></tr>
+                        <tr><td style="width:155px;">Added User</td><td>@Model.current_ingot_add_user</td></tr>
+                        <tr><td style="width:155px;">Consumed Line </td><td>@Model.current_ingot.line_consumed</td></tr>
+                        <tr><td style="width:155px;">Consumed User</td><td>@Model.current_ingot_consume_user</td></tr>
+                        <tr><td style="width:155px;">Consumed Datetime</td><td>@Model.current_ingot.consumed_datetime</td></tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+        </div>
+
+    }
+
+}
+
+
+<style type="text/css">
+
+    .table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+        padding:1px 8px;
+    }
+
+    .table {
+        margin-bottom:0px;
+    }
+
+</style>

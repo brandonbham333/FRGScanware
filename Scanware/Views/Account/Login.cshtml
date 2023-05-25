@@ -1,0 +1,129 @@
+﻿@model Scanware.Models.LoginModel
+@using Scanware.Ancestor;
+
+@{
+    ViewBag.Title = "Log in";
+    string loc = "";
+    
+    if (Session["reg_location"] == null)
+    {
+        loc = Util.GetRegLoc();
+    }
+    else
+    {
+        loc = Session["reg_location"].ToString();
+    }
+}
+
+
+
+<hgroup class="title">
+    <h2>@ViewBag.Title</h2>
+</hgroup>
+
+
+@if (Model.ErrorMessage != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.ErrorMessage</p>
+                        </div>
+                    </div>
+}
+
+
+<section id="loginForm">
+    @if (Model.SSO == "Y")
+    {
+        <h4>You do not have access to this site.  Please contact IT for access.</h4>
+        @TempData["result"]
+    }
+    else
+    {
+        using (Html.BeginForm(new { ReturnUrl = ViewBag.ReturnUrl }))
+        {
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Please Sign In</h3>
+                </div>
+                <div class="panel-body">
+                    
+                        <fieldset>
+                            <div class="form-group">
+                                <input class="form-control" placeholder="User Name" name="UserName" id="UserName" type="text" value="@Model.UserName">
+                            </div>
+                            <div class="form-group">
+                                <input class="form-control" placeholder="Password" name="Password" id="Password" type="password" value="">
+                            </div>
+                            <div class="checkbox">
+                                <label>
+                                    <input name="RememberMe" type="checkbox" value="Remember Me">Remember Me
+                                </label>
+                            </div>
+                            <!-- Change this to a button or input when using this as a form -->
+
+                            <input type="hidden" name="ComputerName" value="@Model.ComputerName">
+
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </fieldset>
+                    
+                </div>
+            </div>
+
+        }
+    }
+
+
+
+    </section>
+
+@if(loc == "ZZZ"){
+<input type="text" value="142596" id="myInput">
+<button onclick="myFunction()">Copy</button>
+
+<script>
+    function myFunction() {
+        var copyText = document.getElementById("myInput");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999)
+        document.execCommand("copy");
+        alert("Copied the text: " + copyText.value);
+    }
+</script>
+}
+
+<meta http-equiv="IBrowse_GetUnitInformation" content="Javascript:SetUnitInfo('%s','%s','%s');">
+
+<script language="javascript" type="text/javascript">
+
+    function SetUnitInfo(serial, uuid, version) {
+        document.forms[0].ComputerName.value = serial;
+    }
+
+    $(document).ready(function () {
+        if ($("#UserName").val() == "") {
+            $("#UserName").focus();
+        }
+        else {
+            $("#Password").focus();
+        }
+    });
+    
+</script>
+
+
+@if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57")){ //if using zebra scanner
+
+    <script type="text/javascript" charset="utf-8" src="../Scripts/ebapi-modules.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            document.forms[0].ComputerName.value = EB.System.uuid;
+        });
+
+    </script>
+}

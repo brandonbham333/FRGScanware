@@ -1,0 +1,409 @@
+﻿@model Scanware.Models.KioskModel
+@using Scanware.Data
+@using Scanware.Properties
+@{
+    ViewBag.Title = StringResources.title;
+    Layout = "~/Views/Shared/_KioskLayout.cshtml";
+
+    string placeholder = StringResources.label_load_card_number;
+    string prefixVisibility = "";
+    string checkboxChecked = "";
+}
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-yellow error_and_message_style">
+        <div class="panel-heading" style="color: black;">
+            @StringResources.label_error
+        </div>
+        <div class="panel-body">
+            <p>@Model.Error</p>
+        </div>
+    </div>
+}
+else if (Model.Message != null)
+{
+    <div class="panel panel-green error_and_message_style">
+        <div class="panel-heading">
+            @StringResources.label_message
+        </div>
+        <div class="panel-body">
+            <p>@Model.Message</p>
+        </div>
+
+        @if (Model.Message == StringResources.success_message)
+        {
+            <text>
+            <script>
+                setTimeout(function () {
+                    window.location.href = '../Kiosk/Index';
+                }, 5000);
+            </script>
+            </text>
+        }
+    </div>
+}
+else if (Model.shipment != null && Model.shipment.load_status.Equals("SH"))
+{
+    // if loadcard_no has already shipped
+    <div class="panel panel-green error_and_message_style">
+        <div class="panel-heading">
+            @StringResources.label_previous_shipment
+        </div>
+        <div class="panel-body">
+            <p>@StringResources.error_previous_shipment</p>
+        </div>
+    </div>
+}
+else if (Model.shipment != null && (Model.shipment.schedule_date.Value.Month > DateTime.Now.Month || Model.shipment.schedule_date.Value.Year > DateTime.Now.Year))
+{
+    // if pickup is scheduled for next month, do not allow (shipping pricing may be different or change)
+    <div class="panel panel-yellow error_and_message_style">
+        <div class="panel-heading">
+            @StringResources.label_future_shipment
+        </div>
+        <div class="panel-body">
+            <p>@StringResources.error_future_shipment @Model.shipment.schedule_date.ToString()</p>
+        </div>
+    </div>
+}
+else if (Model.shipment != null)
+{
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            @StringResources.label_load_details
+        </div>
+
+        <div class="panel-body">
+            @if (ViewData["step"].Equals(1))
+            {
+                <div class="instructions">
+                    @StringResources.instructions_step1
+                </div>
+            }
+            else if (ViewData["step"].Equals(2))
+            {
+                <div class="instructions">
+                    @StringResources.instructions_step2
+                </div>
+            }
+            else if (ViewData["step"].Equals(3))
+            {
+                <div class="instructions">
+                    @StringResources.instructions_step3
+                </div>
+            } 
+            else if (ViewData["step"].Equals(4))
+            {
+                <div class="instructions">
+                    @StringResources.instructions_step4
+                </div>
+            }
+           
+            <form action="/Kiosk/Index" method="post" id="TruckCheckIn" name="TruckCheckIn">
+                <input type="hidden" name="UICulture" value="@Model.locale_code" />
+                <input type="hidden" name="step_id" value=@ViewData["step"] />
+                <input type="hidden" name="loadcard_no" value="@ViewData["loadcard_no"]" />
+
+                @if (ViewData["step"].Equals(1))
+                {
+                    <!-- Confirm: Load Card Number -->
+                    <!-- Verify: Ship To Destination State, City -->
+                    <table class="table table-striped table-bordered">
+                        @ProgressBar(ViewData["step"].ToString())
+                        <tbody>
+                            <tr>
+                                <td style="width:155px;"><label>@StringResources.label_load_card_number</label></td>
+                                <td>@Model.shipment.char_load_id</td>
+                            </tr>
+                            <tr>
+                                <td><label for="state">@StringResources.label_state</label></td>
+                                <td>
+                                    <select required class="form-control" name="state" id="state">
+                                        <option value="">@StringResources.prompt_select_state</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label for="city">@StringResources.label_city</label></td>
+                                <td>
+                                    <select required class="form-control" name="city" id="city">
+                                        <option value="">@StringResources.prompt_select_city</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <script>
+                        const state = document.getElementById('state');
+                        const city = document.getElementById('city');
+                        // populate State List on load
+                        window.onload = () => BuildOptionList(state);
+                        // populate City List on State Select
+                        state.onchange = (e) => BuildOptionList(city, e.target.value);
+                    </script>
+                }
+                else if (ViewData["step"].Equals(2))
+                {
+                    <!-- Verify: Carrier & Enter: Vehicle Number -->
+                    <table class="table table-striped table-bordered">
+                        @ProgressBar(ViewData["step"].ToString())
+                        <tbody>
+                            <tr>
+                                <td style="width:155px;">@StringResources.label_vehicle_number</td>
+                                <td><input type="text" name="vehicle_no" class="form-control" maxlength="12" value="@Model.pre_check_vehicle_no" required /></td>
+                            </tr>
+                            <tr>
+                                <td style="width:155px;">@StringResources.label_carrier</td>
+                                <td>
+                                    <select id="carrier" name="carrier_cd" class="form-control chosen-select" required>
+                                        <option value="">@StringResources.prompt_select_carrier</option>
+                                        @foreach (var carrier in Model.active_carriers)
+                                        {
+                                            <option value="@carrier.carrier_cd" @if (@Model.current_carrier.name == carrier.name) { <text> selected</text>}>
+                                                @carrier.name
+                                            </option>
+                                        }
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr id="CPU_Description" style="display: none;">
+                                <td style="width:155px;">@StringResources.input_customer_pickup_description</td>
+                                <td><input type="text" name="customer_pick_up_description" class="form-control" maxlength="100" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <script>
+                        const CPU_Description = document.getElementById('CPU_Description');
+                        document.getElementById('carrier').onchange = (e) => {
+                            CPU_Description.style.display = e.target.value === "2" ? '' : 'none';
+                        }
+                    </script>
+                }
+                else if (ViewData["step"].Equals(3))
+                {
+                    <!-- Enter: Driver Name, Signature -->
+                    <input type="hidden" name="carrier_cd" value="@Model.current_carrier.carrier_cd" />
+                    <input type="hidden" name="vehicle_no" value="@Model.pre_check_vehicle_no" />
+                    <input type="hidden" name="CPU_Description" value="@Model.shipment.customer_pick_up_description" />
+
+                    <table class="table table-striped table-bordered">
+                        @ProgressBar(ViewData["step"].ToString())
+                        <tbody>
+                            <tr>
+                                <td style="width:155px;">@StringResources.label_driver_name</td>
+                                <td><input type="text" name="driver_name" class="form-control" id="driver_name" value="@Model.pre_check_driver_name" maxlength="30" required /></td>
+                            </tr>
+                            <tr>
+                                <td style="width:155px;">@StringResources.label_driver_signature</td>
+                                <td>@Html.EditorFor(model => Model.MySignature)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                }
+                else if (ViewData["step"].Equals(4))
+                {
+                    <!-- Verify all data collected & Check-In -->
+                    <input type="hidden" name="carrier_cd" value="@Model.current_carrier.carrier_cd" />
+                    <input type="hidden" name="vehicle_no" value="@Model.pre_check_vehicle_no" />
+                    <input type="hidden" name="CPU_Description" value="@Model.shipment.customer_pick_up_description" />
+                    <input type="hidden" name="driver_name" value="@Model.pre_check_driver_name" />
+
+                    <table class="table table-striped table-bordered">
+                        @ProgressBar(ViewData["step"].ToString())
+                        <tbody>
+                            <tr>
+                                <td style="width:155px;">@StringResources.label_load_card_number</td>
+                                <td>@ViewData["loadcard_no"]</td>
+                            </tr>
+                            <tr>
+                                <td style="width:155px;">@StringResources.label_carrier</td>
+                                <td>@Model.current_carrier.name</td>
+                            </tr>
+                            <tr>
+                                <td style="width:155px;">@StringResources.label_destination</td>
+                                <td>
+                                    @Model.shipment_customer_ship_to.ship_to_location_name<br />
+                                    @Model.shipment_customer_ship_to.street_1<br />
+                                    @Model.shipment_customer_ship_to.city, @Model.shipment_customer_ship_to.state @Model.shipment_customer_ship_to.zip_code
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:155px;">@StringResources.label_vehicle_number</td>
+                                <td>@Model.pre_check_vehicle_no</td>
+                            </tr>
+                            <tr>
+                                <td style="width:155px;">@StringResources.label_driver_name</td>
+                                <td>@Model.pre_check_driver_name</td>
+                            </tr>
+                            <tr>
+                                <td style="width:155px;">@StringResources.label_processed_time</td>
+                                <td><input type="text" name="scale_time_in" value="@DateTime.Now" class="form-control" required readonly /></td>
+                            </tr>
+                            <tr id="CPU_Description" @if (Model.shipment.carrier_cd != 2) { <text> style="display: none;" </text> }>
+                                <td style="width:155px;">@StringResources.input_customer_pickup_description</td>
+                                <td>@Model.shipment.customer_pick_up_description</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                }
+                <button class="btn btn-primary btn-lg" type="submit">@StringResources.button_confirm</button>
+            </form>
+        </div>
+    </div>
+}
+else
+{
+    <form class="form-inline text-center" action="/Kiosk/Index" method="get" id="searchForm" name="searchForm">
+        <input type="hidden" name="UICulture" value="@Model.locale_code" />
+        <input type="hidden" name="step_id" id="step_id" value="0" />
+        <div style="width:100%;">
+            <div>
+                <div class="input-group input-group-lg">
+                    <label class="sr-only" for="searchBox" id="searchBoxLabel">@StringResources.label_load_card_number.ToString()</label>
+                    <span class="input-group-addon" id="searchBoxPrefix" @prefixVisibility>S</span>
+                    <input required placeholder="@placeholder" class="form-control" type="text" name="loadcard_no" id="searchBox"
+                           value="@ViewData["loadcard_no"]" pattern="\d*-?\d*" title="Numbers Only" onclick="this.setSelectionRange(0, this.value.length)" />
+                </div>
+                <button class="btn btn-primary btn-lg" type="submit">@StringResources.button_search.ToString()</button>
+            </div>
+            <label class="control-label input-lg PreCheck_Disabled" for="precheck_checkbox" style="font-size: 2rem; font-weight: 400; margin-top: 5%;">
+                @StringResources.toggle_prechecked
+                <input style="display:none; " type="checkbox" id="precheck_checkbox" name="precheck_checkbox" @checkboxChecked />
+            </label>
+        </div>
+    </form>
+
+    // Search Toggle
+    <script>
+        const searchBox = document.getElementById('searchBox');
+        const searchBoxLabel = document.getElementById('searchBoxLabel');
+        const searchBoxPrefix = document.getElementById('searchBoxPrefix');
+
+        const checked_prompt = `@MvcHtmlString.Create(StringResources.label_precheck_prompt)`;
+        const unchecked_prompt = `@MvcHtmlString.Create(StringResources.label_load_card_number)`;
+
+        const precheck_checkbox = document.getElementById('precheck_checkbox');
+
+        precheck_checkbox.addEventListener('click', (e) => {
+            if (e.target.checked) {
+                searchBoxLabel.textContent = searchBox.placeholder = checked_prompt;
+                searchBoxPrefix.style.visibility = 'hidden';
+            } else {
+                searchBoxLabel.textContent = searchBox.placeholder = unchecked_prompt;
+                searchBoxPrefix.style.visibility = '';
+            }
+            precheck_checkbox.parentNode.classList.toggle('PreCheck_Enabled');
+            precheck_checkbox.parentNode.classList.toggle('PreCheck_Disabled');
+        });
+    </script>
+}
+
+<!-- all-page scripts -->
+<script src="~/Scripts/signature_pad.min.js"></script>
+<script src="~/Scripts/SignaturePadInit.js"></script>
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.10.0.min.js" type="text/javascript"></script>
+<script src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js" type="text/javascript"></script>
+<link href="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css" rel="Stylesheet" type="text/css" />
+
+<!-- all-page styles-->
+<style type="text/css">
+    /*Form Wizard*/
+    .bs-wizard { border-bottom: solid 1px #333; padding: 0 0 10px 0; }
+    .bs-wizard > .bs-wizard-step { padding: 0; position: relative; }
+    .bs-wizard > .bs-wizard-step + .bs-wizard-step {}
+    .bs-wizard > .bs-wizard-step .bs-wizard-stepnum { color: #333; font-size: 16px; margin-bottom: 5px; }
+    .bs-wizard > .bs-wizard-step > .bs-wizard-dot { position: absolute; width: 30px; height: 30px; display: block; background: #333; top: 45px; left: 50%; margin-top: -15px; margin-left: -15px; border-radius: 50%; }
+    .bs-wizard > .bs-wizard-step > .bs-wizard-dot:after { content: ' '; width: 5px; height: 5px; background: #333; border-radius: 50px; position: absolute; top: 8px; left: 8px; }
+    .bs-wizard > .bs-wizard-step > .progress { position: relative; border-radius: 0px; height: 5px; box-shadow: none; top: 15px; }
+    .bs-wizard > .bs-wizard-step > .progress > .progress-bar { width: 0px; box-shadow: none; background: #333; }
+    .bs-wizard > .bs-wizard-step.complete > .progress > .progress-bar { width: 100%; }
+    .bs-wizard > .bs-wizard-step.active > .progress > .progress-bar { width: 50%; }
+    .bs-wizard > .bs-wizard-step.active > .bs-wizard-dot::after { width: 30px; height: 30px; top: 0px; left: 0px; background: linear-gradient(45deg, red, transparent); }
+    .bs-wizard > .bs-wizard-step:first-child.active > .progress > .progress-bar { width: 0%; }
+    .bs-wizard > .bs-wizard-step:last-child.active > .progress > .progress-bar { width: 100%; }
+    .bs-wizard > .bs-wizard-step.disabled > .bs-wizard-dot { background-color: #f5f5f5; }
+    .bs-wizard > .bs-wizard-step.disabled > .bs-wizard-dot:after { opacity: 0; }
+    .bs-wizard > .bs-wizard-step:first-child > .progress { left: 50%; width: 50%; }
+    .bs-wizard > .bs-wizard-step:last-child > .progress { width: 50%; }
+    .bs-wizard > .bs-wizard-step.disabled a.bs-wizard-dot { pointer-events: none; }
+    /*END Form Wizard*/
+
+    /* viewModel.Message & viewModel.Error */
+    .error_and_message_style {
+        font-size: 2rem;
+        margin: auto;
+        max-height: 200px;
+        max-width: 640px;
+        text-align: center;
+    }
+
+    /* Precheck Toggle */
+    .PreCheck_Enabled { color: white; outline: 1px solid #337ab7; background-color: #1F1F1F; }
+    .PreCheck_Disabled { background-image: linear-gradient(to top left, #888, #222); }
+
+    .instructions {
+        margin:10px;
+        font-weight:bold;
+        font-size:15px;
+            
+    }
+
+</style>
+
+
+@helper ProgressBar(string step)
+{
+    int limit = int.Parse(step);
+
+    string[] status = { "disabled", "disabled", "disabled", "disabled" };
+
+    for (int i = 0; i < limit - 1; ++i)
+    {
+        status[i] = "complete";
+    }
+
+    status[limit - 1] = "active";
+
+    <thead>
+        <tr>
+            <th colspan="2" style="font-weight:bold;">
+                <!--status bar start -->
+                <div class="row bs-wizard" style="border-bottom: 0;">
+                    <div class="col-xs-3 bs-wizard-step @status[0]">
+                        <div class="text-center bs-wizard-stepnum">@StringResources.progress_stage_0.ToString()</div>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <a href="#" class="bs-wizard-dot"></a>
+                    </div>
+
+                    <div class="col-xs-3 bs-wizard-step @status[1]">
+                        <div class="text-center bs-wizard-stepnum">@StringResources.progress_stage_1.ToString()</div>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <a href="#" class="bs-wizard-dot"></a>
+                    </div>
+
+                    <div class="col-xs-3 bs-wizard-step @status[2]">
+                        <div class="text-center bs-wizard-stepnum">@StringResources.progress_stage_2.ToString()</div>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <a href="#" class="bs-wizard-dot"></a>
+                    </div>
+
+                    <div class="col-xs-3 bs-wizard-step @status[3]">
+                        <div class="text-center bs-wizard-stepnum">@StringResources.progress_stage_3.ToString()</div>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <a href="#" class="bs-wizard-dot"></a>
+                    </div>
+                </div>
+                <!--status bar end -->
+            </th>
+        </tr>
+    </thead>
+}

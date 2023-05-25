@@ -1,0 +1,6 @@
+﻿@model byte[]
+
+<div class="signature-pad">
+    <canvas id="canvsig" class="panel panel-default"></canvas>
+    @Html.HiddenFor(model => model, new { @disabled = "disabled" })
+</div>

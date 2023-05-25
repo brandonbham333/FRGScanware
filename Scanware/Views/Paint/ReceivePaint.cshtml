@@ -1,0 +1,131 @@
+﻿@{
+    ViewBag.Title = "Receive Paint";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Receive Paint</h2>
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Error</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            Message
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Message</p>
+                        </div>
+                    </div>
+}
+
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Receive Paint
+    </div>
+
+    <div class="panel-body">
+
+        <form action="/Paint/ReceivePaint" method="post" id="ReceivePaint" name="ReceivePaint">
+
+            <div class="form-group">
+                <label>Barcode Number</label>
+                <input type="text" name="barcode_string" class="form-control" id="barcode_string" />
+                <p style="line-height: 50px;"></p>
+                <label>Batch Total Gallons</label>
+                <p style="line-height: 50px;"></p>
+                          
+              <input type="text" name="batch_gallons" list="gallonlist">
+                <datalist id="gallonlist">
+                    <option>Select or Enter Batch Total </option>
+                    @{
+                        foreach (var gallons in Model.paint_batch_range)
+                        {
+                            <option value="@gallons" @if (Model.paint_batch_total == gallons) { <text> selected</text>}>@gallons</option>
+                        }
+                    }
+                </datalist>
+
+            </div>
+            <input type="hidden" value="0" name="ScannerUsed" id="ScannerUsed" />
+            <button class="btn btn-primary" type="submit">Receive</button>
+
+        </form>
+
+    </div>
+</div>
+
+
+<meta http-equiv="IBrowse_ScannerNavigate" content="Javascript:OnScan('%s','%s','%s');" />   
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $("#barcode_number").focus();
+        });
+
+        function OnScan(data1, type1, time1) {
+
+            var paintNum = data1;
+
+            if (isNormalInteger(paintNum)) {
+                document.getElementById("location_cd_select").value = paintNum;
+            }
+            else {
+
+                paintNum = paintNum.toUpperCase();
+                document.getElementById("barcode_number").value = paintNum;
+                document.getElementById("ScannerUsed").value = "1";
+                document.InsertPaint.submit();
+
+            }
+        }
+
+        function isNormalInteger(str) {
+            return /^\d+$/.test(str);
+        }
+
+
+    </script>
+
+
+
+@if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57")){ //if using zebra scanner
+
+    <script type="text/javascript" charset="utf-8" src="../Scripts/ebapi-modules.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            EB.Barcode.enable({ allDecoders: true }, fnBarcodeScanned); //enable 
+        });
+
+        function fnBarcodeScanned(jsonObject) {
+
+            var paintNum = jsonObject.data;
+
+            if (isNormalInteger(paintNum)) {
+                document.getElementById("location_cd_select").value = paintNum;
+            }
+            else {
+
+                paintNum = paintNum.toUpperCase();
+                document.getElementById("barcode_number").value = paintNum;
+                document.getElementById("ScannerUsed").value = "1";
+                document.InsertPaint.submit();
+
+            }
+
+        }       
+
+    </script>
+}

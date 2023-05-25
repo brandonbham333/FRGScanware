@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="button_clear" xml:space="preserve">
+    <value>Claro</value>
+  </data>
+  <data name="button_confirm" xml:space="preserve">
+    <value>Confirmar</value>
+  </data>
+  <data name="button_print" xml:space="preserve">
+    <value>Impresión</value>
+  </data>
+  <data name="button_reset" xml:space="preserve">
+    <value>Reiniciar</value>
+  </data>
+  <data name="button_search" xml:space="preserve">
+    <value>Buscar</value>
+  </data>
+  <data name="header_coil_location" xml:space="preserve">
+    <value>Localización</value>
+  </data>
+  <data name="header_coil_verification_status" xml:space="preserve">
+    <value>Estado de verificación</value>
+  </data>
+  <data name="header_coil_weight" xml:space="preserve">
+    <value>Peso</value>
+  </data>
+  <data name="header_production_coil_no" xml:space="preserve">
+    <value>Número de bobina</value>
+  </data>
+  <data name="header_product_type" xml:space="preserve">
+    <value>tipo de producto</value>
+  </data>
+  <data name="input_customer_pickup_description" xml:space="preserve">
+    <value>Descripción de recogida del cliente</value>
+  </data>
+  <data name="label_carrier" xml:space="preserve">
+    <value>Transportador</value>
+  </data>
+  <data name="label_city" xml:space="preserve">
+    <value>Ciudad</value>
+  </data>
+  <data name="label_coil_unverified" xml:space="preserve">
+    <value>Inconfirmado</value>
+  </data>
+  <data name="label_coil_verified" xml:space="preserve">
+    <value>Verificado</value>
+  </data>
+  <data name="label_destination" xml:space="preserve">
+    <value>Destino</value>
+  </data>
+  <data name="label_driver_name" xml:space="preserve">
+    <value>Nombre del conductor</value>
+  </data>
+  <data name="label_driver_signature" xml:space="preserve">
+    <value>Firma del conductor</value>
+  </data>
+  <data name="label_load_card_number" xml:space="preserve">
+    <value>Cargar número de tarjeta</value>
+  </data>
+  <data name="label_precheck_prompt" xml:space="preserve">
+    <value>Número de verificación previa</value>
+  </data>
+  <data name="label_processed_time" xml:space="preserve">
+    <value>Tiempo procesado</value>
+  </data>
+  <data name="label_state" xml:space="preserve">
+    <value>Estado</value>
+  </data>
+  <data name="label_vehicle_number" xml:space="preserve">
+    <value>Número de vehículo</value>
+  </data>
+  <data name="progress_stage_0" xml:space="preserve">
+    <value>Destino</value>
+  </data>
+  <data name="progress_stage_1" xml:space="preserve">
+    <value>Información del transportista</value>
+  </data>
+  <data name="progress_stage_2" xml:space="preserve">
+    <value>Firma</value>
+  </data>
+  <data name="progress_stage_3" xml:space="preserve">
+    <value>Impresión</value>
+  </data>
+  <data name="prompt_select_carrier" xml:space="preserve">
+    <value>Seleccionar transportista</value>
+  </data>
+  <data name="prompt_select_city" xml:space="preserve">
+    <value>Ciudad selecta</value>
+  </data>
+  <data name="prompt_select_state" xml:space="preserve">
+    <value>Seleccione estado</value>
+  </data>
+  <data name="title" xml:space="preserve">
+    <value>Quiosco</value>
+  </data>
+  <data name="toggle_prechecked" xml:space="preserve">
+    <value>Precomprobado</value>
+  </data>
+  <data name="error_check_in_failed" xml:space="preserve">
+    <value>Hubo un error al registrarse</value>
+  </data>
+  <data name="error_invalid_load_card_number" xml:space="preserve">
+    <value>Número de tarjeta de carga no válido</value>
+  </data>
+  <data name="error_invalid_precheck_number" xml:space="preserve">
+    <value>Número de verificación previa no válido</value>
+  </data>
+  <data name="error_local_destination" xml:space="preserve">
+    <value>Este terminal no se puede utilizar para envíos MSP o NEW PROCESS-COLUMBUS</value>
+  </data>
+  <data name="error_local_destination_supplement" xml:space="preserve">
+    <value>está destinado a</value>
+  </data>
+  <data name="error_precheck_id_not_found" xml:space="preserve">
+    <value>No se puede encontrar la identificación previa a la verificación</value>
+  </data>
+  <data name="error_print_failed" xml:space="preserve">
+    <value>Se produjo un error al imprimir las tarjetas de carga / etiqueta de envío. Comuníquese con el soporte de TI.</value>
+  </data>
+  <data name="error_signature_failed" xml:space="preserve">
+    <value>Se produjo un error al intentar guardar la firma. Comuníquese con el soporte de TI.</value>
+  </data>
+  <data name="error_signature_required" xml:space="preserve">
+    <value>No se capturó ninguna firma. Se requiere firma.</value>
+  </data>
+  <data name="error_validation_failed" xml:space="preserve">
+    <value>El destino no coincide con el pedido del cliente</value>
+  </data>
+  <data name="label_load_details" xml:space="preserve">
+    <value>Detalles de carga</value>
+  </data>
+  <data name="success_message" xml:space="preserve">
+    <value>Registro completo. Impresión de tarjeta de carga y conocimiento de embarque</value>
+  </data>
+  <data name="error_previous_shipment" xml:space="preserve">
+    <value>Esta carga ya ha sido enviada</value>
+  </data>
+  <data name="label_error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="label_message" xml:space="preserve">
+    <value>Mensaje</value>
+  </data>
+  <data name="label_previous_shipment" xml:space="preserve">
+    <value>Terminado</value>
+  </data>
+  <data name="instructions_step1" xml:space="preserve">
+    <value>Seleccione el estado y la ciudad de destino y haga clic en Confirmar</value>
+  </data>
+  <data name="instructions_step2" xml:space="preserve">
+    <value>Ingrese su número de vehículo, verifique el transportista y haga clic en Confirmar.</value>
+  </data>
+  <data name="instructions_step3" xml:space="preserve">
+    <value>Escriba su nombre, use la pantalla táctil para iniciar sesión en el cuadro azul y haga clic en Confirmar.</value>
+  </data>
+  <data name="instructions_step4" xml:space="preserve">
+    <value>Verifique los detalles a continuación y haga clic en Confirmar para imprimir su documentación de envío.</value>
+  </data>
+  <data name="error_future_shipment" xml:space="preserve">
+    <value>El envío está programado para</value>
+  </data>
+  <data name="label_future_shipment" xml:space="preserve">
+    <value>Envío futuro</value>
+  </data>
+</root>

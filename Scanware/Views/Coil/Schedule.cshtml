@@ -1,0 +1,135 @@
+﻿@{
+    ViewBag.Title = "Schedule";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Schedule</h2>
+
+
+
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Error</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            Message
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Message</p>
+                        </div>
+                    </div>
+}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Schedule
+    </div>
+
+    <div class="panel-body">
+
+        <form action="/Coil/Schedule" method="get" id="ScheduleCoils" name="ScheduleCoils">
+           
+          <div class="form-group">
+          <label>Facility</label>
+            
+
+            <select name="facility_cd" onchange='this.form.submit()' class="form-control">     
+            <option value="">Select Facility</option>                     
+               @{
+               
+                   foreach (var processor in Model.schedule_product_processors)
+                   {                  
+                       <option value="@processor.facility_cd" @if (Model.current_facility_cd == @processor.facility_cd){<text>selected</text>} >@processor.facility_cd - @processor.name</option>
+                   }
+               }
+            </select>
+          </div>
+
+          @if(Model.schedules != null){
+          
+          <div class="form-group">
+          <label>Schedule Number</label>
+            
+
+            <select name="schedule_number" onchange='this.form.submit()' class="form-control">     
+            <option value="">Select Schedule</option>                     
+               @{
+               
+              foreach (var schedule in Model.schedules)
+                   {                  
+                       <option value="@schedule" @if (Model.selected_schedule == @schedule)
+                                                              {<text>selected</text>} >@schedule</option>
+                   }
+               }
+            </select>
+          </div>
+              
+          }
+
+
+
+
+        </form>
+
+
+          <div class="form-group">
+          <label>Scheduled Coils</label>
+            <form action="/Coil/MoveCoilToLineEntry" method="post">
+
+              <button class="btn btn-primary" type="submit">Move Coil(s)</button>
+
+              <input type="hidden" name="facility_cd" value="@Model.current_facility_cd" />
+                <input type="hidden" name="schedule_number" value="@Model.selected_schedule" />
+                <br /><br />
+                <table class="table table-striped table-bordered increase_font">
+                <thead>
+                    <tr><th></th><th>Seq</th><th>Coil</th><th>Weight</th><th>Loc</th><th>Schedule</th></tr>
+                </thead>
+                <tbody>
+
+                    
+                        @if (Model.scheduled_coils == null || Model.scheduled_coils.Count == 0)
+                        {
+                            <tr><td colspan="6" style="text-align:center;">No scheduled coils</td></tr>
+                        }
+                        else{   
+                        foreach (var coil in Model.scheduled_coils)
+                        {
+                            <tr>
+                       
+                            <td><input type="checkbox" name="production_coil_no" value="@coil.production_coil_no" /></td><td>@coil.prod_seq</td><td><a href="/Coil/Index?production_coil_no=@coil.production_coil_no">@coil.production_coil_no</a> @if (coil.coil_alias != null) { <text> / @coil.coil_alias</text>}</td><td>@coil.coil_weight</td><td>@coil.column - @coil.row</td><td>@coil.schedule_number</td>
+
+                            </tr>
+                        }
+                        }
+
+                    
+                                      
+                </tbody>
+                </table>
+
+
+
+            </form>
+          </div>
+
+       
+          
+            
+
+        
+
+    </div>
+</div>

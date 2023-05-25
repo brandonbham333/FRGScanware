@@ -1,0 +1,218 @@
+﻿@{
+    ViewBag.Title = "MoveCoil";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<meta http-equiv="IBrowse_ScannerNavigate" content="Javascript:OnScan('%s','%s','%s');" />
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#CoilNumber").focus();
+    });
+
+    function OnScan(data1, type1, time1) {
+        var coilNum = data1;
+        coilNum = coilNum.toUpperCase();
+        document.getElementById("production_coil_no").value = coilNum;
+        document.getElementById("scanner_used").value = "Y";
+        document.MoveCoil.submit();
+    }
+</script>
+
+
+@if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57"))
+{ //if using zebra scanner
+
+    <script type="text/javascript" charset="utf-8" src="../Scripts/ebapi-modules.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            EB.Barcode.enable({ allDecoders: true }, fnBarcodeScanned); //enable
+        });
+
+        function fnBarcodeScanned(jsonObject) {
+
+
+            var coilNum = jsonObject.data;
+            coilNum = coilNum.toUpperCase();
+
+
+
+            if (coilNum.includes("$")) {
+                document.getElementById("scanned_location").value = coilNum;
+            }
+            else {
+                if (coilNum.substring(0, 1) == "S") {
+                    coilNum = coilNum.substring(1, coilNum.length)
+                }
+                document.getElementById("production_coil_no").value = coilNum;
+                document.getElementById("scanner_used").value = "Y";
+                document.MoveCoil.submit();
+            }
+            //else {
+            //    document.getElementById("shipped_coil_no").value = coilNum;
+            //    document.getElementById("scanner_used").value = "Y";
+            //    document.MoveCoil.submit();
+            //}
+        }
+
+    </script>
+}
+else
+{
+<script>
+    function enterSubmit(e) {
+
+            if (e && e.keyCode == 13) {
+                e.preventDefault();
+                document.MoveCoil.submit();
+            }
+    }
+
+</script>
+}
+<script>
+    function ClearScannedLocation(e) {
+        document.getElementById("scanned_location").value = "";
+    }
+</script>
+
+<h2>Move Coil</h2>
+
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+        <div class="panel-heading">
+            Error
+        </div>
+        <div class="panel-body">
+            <p>@Model.Error</p>
+        </div>
+    </div>
+}
+
+@if (Model.Alert != null)
+{
+    <div class="panel panel-yellow">
+        <div class="panel-heading">
+            Alert
+        </div>
+        <div class="panel-body">
+            <p>@Model.Alert</p>
+        </div>
+    </div>
+}
+
+@if (Model.new_coil_yard_location != null)
+{
+    <div class="panel panel-green">
+        <div class="panel-heading">
+            Success
+        </div>
+        <div class="panel-body">
+            <p>@Model.searched_coil_number moved to @Model.current_column - @Model.current_row</p>
+        </div>
+    </div>
+}
+
+@if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57"))
+{ //if using zebra scanner
+    if ((Model.new_coil_yard_location != null) || (Model.Alert != null) || (Model.Error != null))
+    {
+        <script type="text/javascript" charset="utf-8" src="../Scripts/ebapi-modules.js"></script>
+        <script type="text/javascript">
+
+            //            document.getElementById("production_coil_no").value = "";
+            //        alert("here");
+        </script>
+    }
+}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Coil Location
+    </div>
+
+    <div class="panel-body">
+
+        <form action="/Coil/MoveCoil" method="post" id="MoveCoil" name="MoveCoil">
+
+            @if (Model.CoilYardBays.Count > 0)
+            {
+                <div class="form-group">
+                    <label>Bay</label>
+                    <select name="bay_cd" onchange='this.form.submit()' class="form-control">
+                        <option value="">Select Bay</option>
+                        @{
+
+                            foreach (var bays in Model.CoilYardBays)
+                            {
+                                <option value="@bays.bay_cd" @if (Model.current_coil_yard_bay.bay_cd == bays.bay_cd) { <text> selected</text>}>
+                                    @bays.bay_cd - @bays.bay_desc
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+            }
+
+            <div class="form-group">
+                <label>Column</label>
+                <select id="column" name="column" onchange='this.form.submit()' class="form-control">
+                    <option value="">Select Area</option>
+                    @{
+
+                        foreach (var cols in Model.CoilYardCols)
+                        {
+                            <option value="@cols.column" @if (Model.current_column == cols.column) { <text> selected </text> }>
+                                @cols.column - @cols.description
+                            </option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Row</label>
+                <select id="Row" name="row" class="form-control" onchange="ClearScannedLocation()">
+                    @{
+                        foreach (var row in Model.CoilYardRows)
+                        {
+                            <option value="@row.row" @if (Model.current_row == row.row) { <text> selected </text> }>
+                                @row.row
+                            </option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>OR</label>
+                <br>
+                <b> Scan Location</b>
+                <input id="scanned_location" type="text" name="scanned_location" class="form-control" onkeypress="enterSubmit()" value="@(Model.current_loc != null ? Model.current_loc : "")" />
+            </div>
+
+
+            <div class="form-group">
+                <label>Coil Number</label>
+                <input type="text" name="production_coil_no" class="form-control" id="production_coil_no" value="" />
+                <input type="hidden" value="N" name="scanner_used" id="scanner_used" />
+            </div>
+            @*@if (Model.add_jville_check)
+        {
+            <div class="form-group">
+                <label>Coil Number BOL</label>
+                <input type="text" name="shipped_coil_no" class="form-control" id="shipped_coil_no" value="@Model.shipped_coil_no" equalTo='#production_coil_no' required />
+            </div>
+
+        }*@
+            @*<button class="btn btn-primary" type="submit" id="moveCoilBtn">Move Coil</button>*@
+            <button class="btn btn-primary" type="submit">Move Coil</button>
+
+        </form>
+
+    </div>
+</div>
+

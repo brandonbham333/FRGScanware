@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="956da47ed66641c8ad93e89bb06e052b" Name="Diagram1" ZoomLevel="73">
+        <EntityTypeShape EntityType="sdipdbModel.ref_sys_param" Width="1.5" PointX="2.75" PointY="6.75" />
+        <EntityTypeShape EntityType="sdipdbModel.application_security" Width="1.5" PointX="3" PointY="1" />
+        <EntityTypeShape EntityType="sdipdbModel.function_level_description" Width="2" PointX="5.75" PointY="1.25" />
+        <EntityTypeShape EntityType="sdipdbModel.function_level_security" Width="2.125" PointX="8.5" PointY="1" />
+        <EntityTypeShape EntityType="sdipdbModel.user_info" Width="1.5" PointX="0.75" PointY="1.75" />
+        <AssociationConnector Association="sdipdbModel.FK_application_security_user_info" />
+        <AssociationConnector Association="sdipdbModel.FK_function_level_security_function_level_description" />
+        <EntityTypeShape EntityType="sdipdbModel.applications" Width="1.5" PointX="1" PointY="4" />
+        <AssociationConnector Association="sdipdbModel.FK_application_security_application_security" />
+        <AssociationConnector Association="sdipdbModel.FK_application_security_applications" />
+        <EntityTypeShape EntityType="sdipdbModel.coil" Width="1.5" PointX="8.25" PointY="44.375" />
+        <EntityTypeShape EntityType="sdipdbModel.customer_order" Width="2.25" PointX="10.75" PointY="50.375" />
+        <EntityTypeShape EntityType="sdipdbModel.customer_order_line_item" Width="1.75" PointX="3.25" PointY="38" />
+        <EntityTypeShape EntityType="sdipdbModel.hb_setup" Width="1.5" PointX="5.25" PointY="73.5" />
+        <EntityTypeShape EntityType="sdipdbModel.customer" Width="1.5" PointX="0.75" PointY="30.5" />
+        <EntityTypeShape EntityType="sdipdbModel.product_type" Width="1.5" PointX="5.75" PointY="4.75" />
+        <EntityTypeShape EntityType="sdipdbModel.all_produced_coils" Width="1.5" PointX="6" PointY="17.25" />
+        <AssociationConnector Association="sdipdbModel.FK_coil_all_produced_coils" />
+        <AssociationConnector Association="sdipdbModel.FK_coil_customer_order_line_item" />
+        <AssociationConnector Association="sdipdbModel.FK_customer_order_line_item_customer" />
+        <AssociationConnector Association="sdipdbModel.FK_customer_order_line_item_customer_order" />
+        <AssociationConnector Association="sdipdbModel.FK_hb_setup_customer_order_line_item" />
+        <EntityTypeShape EntityType="sdipdbModel.customer_ship_to" Width="1.5" PointX="7.75" PointY="4.75" />
+        <EntityTypeShape EntityType="sdipdbModel.coil_yard_columns" Width="1.5" PointX="9.75" PointY="4.75" />
+        <EntityTypeShape EntityType="sdipdbModel.coil_yard_locations" Width="1.5" PointX="10.125" PointY="8.5" />
+        <EntityTypeShape EntityType="sdipdbModel.coil_yard_rows" Width="1.5" PointX="11.75" PointY="0.75" />
+        <EntityTypeShape EntityType="sdipdbModel.coil_status" Width="1.5" PointX="11.75" PointY="5.75" />
+        <EntityTypeShape EntityType="sdipdbModel.inventory_item" Width="1.5" PointX="8.25" PointY="20.125" />
+        <EntityTypeShape EntityType="sdipdbModel.inventory_reason" Width="1.5" PointX="11.75" PointY="9.75" />
+        <AssociationConnector Association="sdipdbModel.FK_inventory_item_all_produced_coils" />
+        <EntityTypeShape EntityType="sdipdbModel.load_dtl" Width="1.5" PointX="13.75" PointY="0.75" />
+        <EntityTypeShape EntityType="sdipdbModel.shipment_load" Width="1.5" PointX="13.75" PointY="5.75" />
+        <EntityTypeShape EntityType="sdipdbModel.packaging_type" Width="1.5" PointX="10.375" PointY="13.25" />
+        <EntityTypeShape EntityType="sdipdbModel.vw_sw_coil_history" Width="1.5" PointX="15.75" PointY="0.75" />
+        <EntityTypeShape EntityType="sdipdbModel.printer" Width="1.5" PointX="5.625" PointY="13.875" />
+        <EntityTypeShape EntityType="sdipdbModel.product_processors" Width="1.5" PointX="15.75" PointY="4.75" />
+        <EntityTypeShape EntityType="sdipdbModel.vw_sw_scheduled_coils" Width="1.5" PointX="15.75" PointY="16.75" />
+        <EntityTypeShape EntityType="sdipdbModel.coil_audit_trail" Width="1.5" PointX="17.75" PointY="0.75" />
+        <EntityTypeShape EntityType="sdipdbModel.vw_sw_packaging" Width="1.5" PointX="17.75" PointY="6.75" />
+        <EntityTypeShape EntityType="sdipdbModel.rail_cars" Width="1.5" PointX="10.75" PointY="17.75" />
+        <EntityTypeShape EntityType="sdipdbModel.vw_sw_inbound_op_coils" Width="1.5" PointX="24.375" PointY="8.75" />
+        <EntityTypeShape EntityType="sdipdbModel.vw_sw_outbound_op_coils" Width="1.5" PointX="17.75" PointY="13.75" />
+        <EntityTypeShape EntityType="sdipdbModel.claim_reason" Width="1.5" PointX="17.75" PointY="17.75" />
+        <EntityTypeShape EntityType="sdipdbModel.coil_defect" Width="1.5" PointX="19.75" PointY="0.75" />
+        <EntityTypeShape EntityType="sdipdbModel.paint_location" Width="1.5" PointX="10.25" PointY="25.5" />
+        <EntityTypeShape EntityType="sdipdbModel.sw_paint_receiving" Width="1.5" PointX="3.5142896303507918" PointY="9.1091334862211415" />
+        <EntityTypeShape EntityType="sdipdbModel.sw_paint_log" Width="1.5" PointX="10.085007491561122" PointY="29.110955177392324" />
+        <EntityTypeShape EntityType="sdipdbModel.carrier" Width="1.5" PointX="8.590710554547007" PointY="8.6103952716153085" />
+        <AssociationConnector Association="sdipdbModel.shipment_load_shipment_load_carrier_fk" />
+        <EntityTypeShape EntityType="sdipdbModel.shipment_load_signature" Width="1.5" PointX="4.6954899284501979" PointY="22.959967698417589" />
+        <EntityTypeShape EntityType="sdipdbModel.zebra_template" Width="1.5" PointX="6.71187920808414" PointY="15.205853961038335" />
+        <EntityTypeShape EntityType="sdipdbModel.v_zebra_template_coil" Width="1.5" PointX="0.5" PointY="5.75" />
+        <EntityTypeShape EntityType="sdipdbModel.user_defaults" Width="1.5" PointX="11.436260584479319" PointY="3.5231056974842705" />
+        <EntityTypeShape EntityType="sdipdbModel.printer_queue" Width="1.5" PointX="8.149267090554007" PointY="23.061066608438765" />
+        <EntityTypeShape EntityType="sdipdbModel.v_zebra_template_load_card" Width="1.5" PointX="2.6601729982812761" PointY="29.876049338782231" />
+        <EntityTypeShape EntityType="sdipdbModel.scanware_hold_coil_email" Width="1.5" PointX="2.184992809866086" PointY="18.31859032172644" />
+        <EntityTypeShape EntityType="sdipdbModel.v_sw_print_rail_loads" Width="1.5" PointX="15.5" PointY="29.875" />
+        <EntityTypeShape EntityType="sdipdbModel.shipment_load_images" Width="1.5" PointX="10.75" PointY="20.375" />
+        <EntityTypeShape EntityType="sdipdbModel.v_shipment_load_images" Width="1.5" PointX="4.625" PointY="0.625" />
+        <EntityTypeShape EntityType="sdipdbModel.v_apc_images" Width="1.5" PointX="8.8015294954187837" PointY="18.019681566404032" />
+        <EntityTypeShape EntityType="sdipdbModel.paint_type" Width="1.5" PointX="7.4869189986432527" PointY="8.3483887055648438" />
+        <EntityTypeShape EntityType="sdipdbModel.v_zebra_template_paint_location" Width="1.5" PointX="11.875" PointY="13.375" />
+        <EntityTypeShape EntityType="sdipdbModel.ba_coil_product_data" Width="2.25" PointX="3.25" PointY="15.375" />
+        <EntityTypeShape EntityType="sdipdbModel.application_login" Width="1.5" PointX="0.72555458206942047" PointY="23.441151153036" />
+        <EntityTypeShape EntityType="sdipdbModel.rail_car_brand" Width="1.5" PointX="6.875" PointY="0.5" />
+        <EntityTypeShape EntityType="sdipdbModel.from_freight_locations" Width="1.5" PointX="3.1197932283951872" PointY="17.511738189268737" />
+        <EntityTypeShape EntityType="sdipdbModel.coil_yard_bays" Width="1.5" PointX="0.51320502185877648" PointY="26.41252650060343" />
+        <EntityTypeShape EntityType="sdipdbModel.load_dtl_bay" Width="1.5" PointX="20.375" PointY="9.75" />
+        <EntityTypeShape EntityType="sdipdbModel.scanware_shipping_loads" Width="1.5" PointX="20.375" PointY="13.75" />
+        <EntityTypeShape EntityType="sdipdbModel.vw_shipping_schedule_334" Width="1.5" PointX="20.375" PointY="16.75" />
+        <EntityTypeShape EntityType="sdipdbModel.v_sw_load_details" Width="1.5" PointX="15.25" PointY="19.375" />
+        <EntityTypeShape EntityType="sdipdbModel.vw_sw_pre_check_loads" Width="1.5" PointX="7.5341880654609712" PointY="25.307905104620339" />
+        <EntityTypeShape EntityType="sdipdbModel.sw_op_coil_validate" Width="1.5" PointX="3.75" PointY="1.625" />
+        <EntityTypeShape EntityType="sdipdbModel.coil_reauthorization" Width="1.5" PointX="20.375" PointY="19.75" />
+        <EntityTypeShape EntityType="sdipdbModel.scanware_loads_ship_after_12" Width="1.5" PointX="13.375" PointY="21.75" />
+        <EntityTypeShape EntityType="sdipdbModel.zinc_tracking" Width="1.5" PointX="22.375" PointY="0.75" />
+        <EntityTypeShape EntityType="sdipdbModel.paint_coils_images" Width="1.5" PointX="22.375" PointY="4.75" />
+        <EntityTypeShape EntityType="sdipdbModel.v_paint_coils_images" Width="1.5" PointX="22.375" PointY="7.75" />
+        <EntityTypeShape EntityType="sdipdbModel.paint_receiver_header" Width="1.5" PointX="22.375" PointY="10.75" />
+        <EntityTypeShape EntityType="sdipdbModel.paint_inventory" Width="1.5" PointX="22.375" PointY="15.75" />
+        <EntityTypeShape EntityType="sdipdbModel.vw_sw_produced_coils" Width="1.5" PointX="20.375" PointY="22.75" />
+        <EntityTypeShape EntityType="sdipdbModel.application_settings" Width="1.5" PointX="22.375" PointY="22.75" />
+        <EntityTypeShape EntityType="sdipdbModel.to_freight_locations" Width="1.5" PointX="24.375" PointY="0.75" />
+        <EntityTypeShape EntityType="sdipdbModel.state" Width="1.5" PointX="24.375" PointY="4.75" />
+        <EntityTypeShape EntityType="sdipdbModel.finish_line_setup" Width="1.5" PointX="5.75" PointY="118.75" />
+        <AssociationConnector Association="sdipdbModel.FK_finish_line_setup_customer_order_line_item" />
+        <EntityTypeShape EntityType="sdipdbModel.warehoused_load_dtl" Width="1.5" PointX="24.375" PointY="12.75" />
+        <EntityTypeShape EntityType="sdipdbModel.warehoused_shipment_load" Width="1.5" PointX="12.375" PointY="24.75" />
+        <EntityTypeShape EntityType="sdipdbModel.warehoused_coil_product_data" Width="1.5" PointX="24.375" PointY="16.75" />
+        <EntityTypeShape EntityType="sdipdbModel.warehoused_inventory" Width="1.5" PointX="24.375" PointY="21.75" />
+        </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

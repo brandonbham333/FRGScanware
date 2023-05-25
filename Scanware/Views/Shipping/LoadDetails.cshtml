@@ -1,0 +1,265 @@
+﻿@{
+    ViewBag.Title = "LoadDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Load Details</h2>
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Error</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            Message
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Message</p>
+                        </div>
+                    </div>
+}
+
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Search
+    </div>
+
+    <div class="panel-body">
+
+        <form action="/Shipping/LoadDetails" method="post" id="LoadDetails" name="LoadDetails">
+    
+            <div class="form-group">
+
+            <div class="form-filter">
+                <label>Coil No</label>
+                    <input class="form-control" id="production_coil_no" type="text" name="production_coil_no" value="@Model.searched_production_coil_no" />
+            </div>
+            <div class="form-filter">
+            <label>OP Tag No</label>
+                <input class="form-control" id="op_tag_no" type="text" name="op_tag_no" value="@Model.searched_tag_no" />
+             </div>
+            <div class="form-filter">   
+            <label>Load ID</label>
+                <input class="form-control" id="char_load_id" type="text" name="char_load_id" value="@Model.searched_char_load_id" />
+            </div>
+            <div class="form-filter">
+            <label>Customer PO</label>
+                <input class="form-control" id="po_order_no" type="text" name="po_order_no" value="@Model.searched_po_order_no" />
+            </div>
+            <div class="form-filter">
+            <label>Order No - Line Item No</label>
+                <input class="form-control" id="order_no" type="text" name="order_no" value="@Model.searched_order_no" />
+            </div>
+            <div class="form-filter">
+            <label>Vehicle No</label>
+                <input class="form-control" id="vehicle_no" type="text" name="vehicle_no" value="@Model.searched_vehicle_no" />
+            </div>
+
+            <div class="form-filter" style="padding-top:27px;">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+            <div class="form-filter" style="padding-top:27px;">
+                <button class="btn btn-danger" onclick="clear_form();">Clear</button>
+            </div>
+            <br style="clear:both;"/>
+                
+
+            
+
+</div>
+
+        </form>
+    </div>
+</div>
+
+
+
+
+
+
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Results
+    </div>
+
+    <div class="panel-body">
+
+         <table class="table table-striped table-bordered">
+            <thead>
+                                        <tr>
+                                            <th>Docs</th>
+                                            <th>Load ID</th>
+                                            <th>From Location</th>
+                                            <th>To Location</th>
+                                            <th>Coil#</th>
+                                            <th>Tag#</th>
+                                            <th>P/C</th>
+                                            <th>Mode</th>
+                                            <th>Carrier</th>
+                                            <th>Vehicle</th>
+                                            <th>Weight</th>
+                                            <th>Gauge</th>
+                                            <th>Width</th>
+                                            <th>PO</th>
+                                            <th>Order</th>
+                                            <th>Status</th>
+                                            <th>Product</th>
+                                            <th>Add Date</th>
+                                            <th>Shipped Date</th>
+                                        </tr>
+            </thead>
+        <tbody>
+
+        @if (Model.load_details.Count > 0)
+        {
+
+            foreach (var load_dtl in Model.load_details)
+            {
+                <tr>
+                    @if (Model.location == "C")
+                    {
+                                            <td style="width:100px; text-align:center;">
+
+                                                <a class="btn btn-primary btn-xs" style="margin-bottom:4px;" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2fbill_of_lading_5086&customer_id=@load_dtl.customer_id&LoadID=@load_dtl.load_id.ToString()&rs:Command=Render" target="_blank">BOL</a>
+                                                <a class="btn btn-primary btn-xs" style="margin-bottom:4px;" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2fauto_cert_5143&production_coil_no=@load_dtl.production_coil_no&customer_id=@load_dtl.customer_id.ToString()&rs:Command=Render" target="_blank">Cert</a><br />
+                                                
+                                                @if (@load_dtl.country != "United States")
+                                                {
+                                                 <a class="btn btn-primary btn-xs" style="margin-bottom:4px;" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2fweb_proforma_invoice_1511&load_id=@load_dtl.load_id.ToString()&rs:Command=Render" target="_blank">Proforma</a><br />
+                                                 <a class="btn btn-primary btn-xs" style="margin-bottom:4px;" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2frail_bol_5253&customer_id=@load_dtl.customer_id&load_id=@load_dtl.load_id.ToString()&rs:Command=Render" target="_blank">Rail BOL</a><br />
+                                                }
+
+                                                <div id="Target_@load_dtl.load_id@load_dtl.production_coil_no.Trim()">
+
+                                                @using (Ajax.BeginForm("EmailPaperwork", "Shipping",
+                                    new AjaxOptions
+                                    {
+                                        UpdateTargetId = "Target_" + @load_dtl.load_id + @load_dtl.production_coil_no.Trim()
+                                    }))
+                                                {
+
+                                                            <input type="hidden" name="load_id" value="@load_dtl.load_id" />
+                                                            <input type="submit" value="Email Docs" class="btn btn-primary btn-xs"/>
+
+                                                }
+
+
+                                                
+                                                            </div>
+                                            
+                                            </td>
+
+                                            <td>@load_dtl.char_load_id</td>
+                                            <td>@load_dtl.from_ship_to_location_name</td>
+                                            <td>@load_dtl.to_ship_to_location_name <br />@load_dtl.to_ship_to_city,@load_dtl.to_ship_to_state</td>
+                                            <td>@load_dtl.production_coil_no</td>
+                                            <td>@load_dtl.tag_no</td>
+                                            <td>@load_dtl.prepaid_collect_flag</td>
+                                            <td>@load_dtl.carrier_mode</td>
+                                            <td>@load_dtl.standard_carrier_alpha_code</td>
+                                            <td>@load_dtl.vehicle_no</td>
+                                            <td>@load_dtl.coil_weight</td>
+                                            <td>@load_dtl.coil_thickness.ToString("0.0000")</td>
+                                            <td>@load_dtl.coil_width.ToString("0.0000")</td>
+                                            <td>@load_dtl.po_order_no</td>
+                                            <td>@load_dtl.order_line_item_no</td>
+                                            <td>@load_dtl.load_status</td>
+                                            <td>@load_dtl.product_type</td>
+                                            <td>@load_dtl.shipment_add_datetime</td>
+                                            <td>@load_dtl.shipped_date</td>
+                    }
+                    @if (Model.location != "C")
+                    {
+                    <td style="width:100px; text-align:center;">
+
+
+                        <div id="Target_@load_dtl.load_id@load_dtl.production_coil_no.Trim()">
+
+                            @using (Ajax.BeginForm("EmailPaperwork", "Shipping",
+                            new AjaxOptions
+                            {
+                                UpdateTargetId = "Target_" + @load_dtl.load_id + @load_dtl.production_coil_no.Trim()
+                            }))
+                            {
+
+                                <input type="hidden" name="load_id" value="@load_dtl.load_id" />
+                                                            <input type="submit" value="Email Docs" class="btn btn-primary btn-xs" />
+
+                            }
+
+                        </div>
+
+                    </td>
+
+                    <td>@load_dtl.char_load_id</td>
+                    <td>@load_dtl.from_ship_to_location_name</td>
+                    <td>@load_dtl.to_ship_to_location_name <br />@load_dtl.to_ship_to_city,@load_dtl.to_ship_to_state</td>
+                    <td>@load_dtl.production_coil_no</td>
+                    <td>@load_dtl.tag_no</td>
+                    <td>@load_dtl.prepaid_collect_flag</td>
+                    <td>@load_dtl.carrier_mode</td>
+                    <td>@load_dtl.standard_carrier_alpha_code</td>
+                    <td>@load_dtl.vehicle_no</td>
+                    <td>@load_dtl.coil_weight</td>
+                    <td>@load_dtl.coil_thickness.ToString("0.0000")</td>
+                    <td>@load_dtl.coil_width.ToString("0.0000")</td>
+                    <td>@load_dtl.po_order_no</td>
+                    <td>@load_dtl.order_line_item_no</td>
+                    <td>@load_dtl.load_status</td>
+                    <td>@load_dtl.product_type</td>
+                    <td>@load_dtl.shipment_add_datetime</td>
+                    <td>@load_dtl.shipped_date</td>
+                    }
+                </tr>
+            }
+
+        }
+        else
+        {
+
+            <tr><td colspan="19">No data found.</td></tr>
+        }
+
+
+
+        </table>
+    </div>
+</div>
+
+<style type="text/css">
+    .form-filter {
+        display:inline-block;
+        float:left;
+        padding:5px;
+
+    }
+</style>
+
+
+<script type="text/javascript">
+
+    function clear_form() {
+
+        document.LoadDetails.production_coil_no.value = "";
+        document.LoadDetails.op_tag_no.value = "";
+        document.LoadDetails.char_load_id.value = "";
+        document.LoadDetails.po_order_no.value = "";
+        document.LoadDetails.order_no.value = "";
+        document.LoadDetails.vehicle_no.value = "";
+    }
+
+</script>
+
+

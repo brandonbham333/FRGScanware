@@ -1,0 +1,147 @@
+﻿@{
+    ViewBag.Title = "EditRailCar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Edit @Model.RailCar.vehicle_no</h2>
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+        <div class="panel-heading">
+            Error
+        </div>
+        <div class="panel-body">
+            <p>@Model.Error</p>
+        </div>
+    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+        <div class="panel-heading">
+            Message
+        </div>
+        <div class="panel-body">
+            <p>@Model.Message</p>
+        </div>
+    </div>
+}
+
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Edit @Model.RailCar.vehicle_no
+    </div>
+
+    <div class="panel-body">
+
+
+        <form action="/Admin/EditRailCarSubmit" method="get" id="EditRailCarSubmit" name="EditRailCarSubmit">
+            <input type="hidden" name="vehicle_no" value="@Model.RailCar.vehicle_no" />
+
+            <div class="form-group">
+                <label>Empty Weight</label>
+                <input type="text" name="empty_weight" class="form-control" id="empty_weight" value="@Model.RailCar.empty_weight" />
+            </div>
+
+            <div class="form-group">
+                <label>Status</label>
+                <select name="status" class="form-control">
+
+                    <option value="A" @if (Model.RailCar.status == "A") { <text> selected</text>}>Active</option>
+                    <option value="N" @if (Model.RailCar.status == "N") { <text> selected</text>}>
+                        Not Active
+                    </option>
+
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Permanent Flag</label>
+                <select name="permanent_flg" class="form-control">
+
+                    <option value="A" @if (Model.RailCar.status == "Y") { <text> selected</text>}>
+                        Yes
+                    </option>
+                    <option value="N" @if (Model.RailCar.status == "N") { <text> selected</text>}>
+                        No
+                    </option>
+
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Weigh In Date</label>
+                <input type="text" name="weight_in_datetime" class="form-control datepicker" id="weight_in_datetime" value="@Model.RailCar.weight_in_datetime" />
+            </div>
+            @if (Model.set_max_weight)
+            {
+                <div class="form-group">
+                    <label>Set Max Car Weight</label>
+                    <br />
+                    <label class="radio-inline"><input type="radio" name="max_weight_limit" value="500000" required @if (Model.RailCar.max_weight_limit == 500000) { <text> checked</text>}>Unlimited</label>
+                    <label class="radio-inline"><input type="radio" name="max_weight_limit" value="286000" @if (Model.RailCar.max_weight_limit == 286000) { <text> checked</text>}>286,000</label>
+                    <label class="radio-inline"><input type="radio" name="max_weight_limit" value="263000" @if (Model.RailCar.max_weight_limit == 263000) { <text>checked</text>}>263,000</label>
+
+
+                </div>
+            }
+
+            <button class="btn btn-primary" type="submit">Submit</button>
+            <a href="/Admin/RailCars" class="btn btn-danger" type="button">Cancel</a>
+
+        </form>
+    </div>
+</div>
+
+
+
+<!-- DataTables JavaScript -->
+<script src="../Scripts/jquery.dataTables.min.js"></script>
+<script src="../Scripts/dataTables.bootstrap.min.js"></script>
+<script src="../Scripts/dataTables.responsive.js"></script>
+<!--<script src="../Scripts/moment.js"></script>-->
+<script src="../Scripts/bootstrap-datepicker.min.js"></script>
+
+<script src="../Scripts/jquery.mask.js"></script>
+<script src="../Scripts/js.cookie.js"></script>
+
+<script type="text/javascript">
+    //initiate datepicker
+    $('.datepicker').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+        todayHighlight: true
+    });
+
+
+    //datatables/sum datatables
+    $('.dataTables').DataTable({
+        //responsive: true,
+        stateSave: true,
+        'footerCallback': function (settings, json) {
+            this.api().columns('.sum').every(function () {
+                var column = this;
+
+                var sum = column
+                    .data()
+                    .reduce(function (a, b) {
+                        a = parseInt(a, 10);
+                        if (isNaN(a)) { a = 0; }
+
+                        b = parseInt(b, 10);
+                        if (isNaN(b)) { b = 0; }
+
+                        return a + b;
+                    });
+
+                $(column.footer()).html(sum);
+            });
+        }
+    });
+
+
+
+</script>

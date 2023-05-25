@@ -1,0 +1,64 @@
+﻿@model Scanware.Models.ShippingModel
+@using Scanware.Data
+@{
+
+    function_level_security logged_in_user = new function_level_security(HttpContext.Current.Session["function_level_security"] as List<function_level_security>);
+
+}
+
+@{
+    ViewBag.Title = "CoilReauthorization";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if(!logged_in_user.HasFunctionLevelSecurity("SCALEHOUSE"))
+{
+    <text>You do not have access to this page.</text>
+    return;
+}
+
+<br />
+@if (ViewBag.alert_class != null)
+{
+    <div class="@ViewBag.alert_class">
+        <div class="panel-heading"><b>Alert</b></div>
+        <div class="panel-body">
+            @ViewBag.alert
+        </div>
+    </div>
+}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <b>Coil Re-Authorization</b>
+    </div>
+    @using (Html.BeginForm(
+        "CoilReauthorization",
+        "Shipping",
+        FormMethod.Post
+    ))
+    {
+
+        <div class="panel-body">
+            <div class="form-group">
+                <label>Production Coil No:</label>
+                @Html.TextBox(
+                    "old_coil_no",
+                    "",
+                    new { @class="form-control", @autocomplete = "off" }
+                )
+            </div>
+        </div>
+
+        <div class="panel-footer">
+            <button class="btn btn-success" style="padding: 6px 25px;" type="submit" onclick="submitReuth(this)">Re-Authorize Coil</button>
+        </div>
+    }
+
+</div>
+
+<script type="text/javascript">
+    function submitReuth(obj) {
+        $(obj).append('<img src="/Images/spinny_thing.gif" style="margin-left: 10px; height: 15px; width: 15px;">');
+    }
+</script>

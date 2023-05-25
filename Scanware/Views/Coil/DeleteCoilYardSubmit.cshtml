@@ -1,0 +1,40 @@
+﻿@using Scanware.Data
+@using Scanware.Ancestor;
+
+
+@{
+    ViewBag.Title = "DeleteCoilYard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    function_level_security logged_in_user = new function_level_security(HttpContext.Current.Session["function_level_security"] as List<function_level_security>);
+
+}
+
+<h2>Delete Coil Yard</h2>
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Error</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            Success
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Message</p>
+                        </div>
+                    </div>
+}
+
+
+<a href="/Coil/DeleteCoilYard">Back</a>
+ 

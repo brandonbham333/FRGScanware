@@ -1,0 +1,143 @@
+﻿@{
+    ViewBag.Title = "MovePaint";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Move Paint</h2>
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Error</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            Message
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Message</p>
+                        </div>
+                    </div>
+}
+
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Move Paint
+    </div>
+
+    <div class="panel-body">
+
+        <form action="/Paint/MovePaintSubmit" method="post" id="MovePaint" name="MovePaint">
+           
+          <div class="form-group">
+          <label>Location</label>
+            <select name="location_cd" class="form-control" id="location_cd_select">     
+            <option value="0">Select Location</option>                     
+               @{
+               
+                   foreach (var location in Model.paint_locations)
+                   {                  
+                       <option value="@location.location_cd" @if(Model.current_paint_location.location_cd == location.location_cd){<text>selected</text>}>@location.loc_description</option>
+                   }
+               }
+            </select>
+          </div>
+
+          <div class="form-group">
+          <label>Barcode Number</label>
+            <input type="text" name="barcode_number" class="form-control" id="barcode_number"/>
+          </div>
+           
+           
+          <div class="form-group">
+          <label>Gallons(leave blank if not updating)</label>
+            <input type="text" name="gallons" class="form-control" id="gallons"/>
+          </div>
+
+            <input type="hidden" value="0" name="ScannerUsed" id="ScannerUsed"/>
+            <button class="btn btn-primary" type="submit">Add</button>
+
+        </form>
+              
+    </div>
+</div>
+
+
+
+<meta http-equiv="IBrowse_ScannerNavigate" content="Javascript:OnScan('%s','%s','%s');" />   
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $("#barcode_number").focus();
+        });
+
+        function OnScan(data1, type1, time1) {
+
+            var paintNum = data1;
+
+            if (isNormalInteger(paintNum)) {
+
+       
+                window.location.href = "http://col-scanware/Paint/MovePaint?location_cd=" + paintNum;
+
+            }
+            else {
+
+                paintNum = paintNum.toUpperCase();
+                document.getElementById("barcode_number").value = paintNum;
+                document.getElementById("ScannerUsed").value = "1";
+
+            }
+
+        }
+
+        function isNormalInteger(str) {
+            return /^\d+$/.test(str);
+        }
+
+    </script>
+
+@if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57")){ //if using zebra scanner
+
+    <script type="text/javascript" charset="utf-8" src="../Scripts/ebapi-modules.js"></script>
+    <script type="text/javascript">
+
+
+        $(document).ready(function () {
+            EB.Barcode.enable({ allDecoders: true }, fnBarcodeScanned); //enable 
+        });
+
+        function fnBarcodeScanned(jsonObject) {
+
+            var paintNum = jsonObject.data;
+
+
+            if (isNormalInteger(paintNum)) {
+                document.getElementById("location_cd_select").value = paintNum;
+            }
+            else {
+
+                paintNum = paintNum.toUpperCase();
+                document.getElementById("barcode_number").value = paintNum;
+                document.getElementById("ScannerUsed").value = "1";
+
+            }
+            //document.MovePaint.submit();
+
+        }
+
+
+
+
+    </script>
+}

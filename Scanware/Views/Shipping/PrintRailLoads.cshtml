@@ -1,0 +1,399 @@
+﻿@{
+    ViewBag.Title = "PrintRailLoads";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    
+}
+
+<h2>Print Rail Loads</h2>
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Error</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            Message
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Message</p>
+                        </div>
+                    </div>
+}
+
+    
+    <div class="panel panel-primary">
+    <div class="panel-heading">
+        Scheduled Rail Loads
+    </div>
+
+
+
+
+
+    <div class="panel-body">
+
+
+          <form action="/Shipping/PrintRailLoads" method="get" id="IDPrintRailLoads" name="PrintRailLoads" class="form-inline">
+           
+          <div class="form-group">
+          <label>Ship Date</label>
+            
+               <input class="form-control datepicker" id="id_scheduled_date" type="text" name="scheduled_date" value="@Model.searched_scheduled_date.ToShortDateString()" />
+
+          </div>
+
+
+         <div class="form-group">
+          <label>Printed</label>
+            
+               <select class="form-control" name="print_status" >
+                   <option value="">View All</option>
+                   <option value="Printed" @if (Model.searched_print_status=="Printed"){<text>selected</text>}>Printed</option>
+                   <option value="Not Printed" @if (Model.searched_print_status=="Not Printed"){<text>selected</text>}>Not Printed</option>
+                </select>
+
+          </div>
+
+          <div class="form-group">
+          <label>Load ID</label>
+            
+               <select class="form-control" name="char_load_id" >
+                   <option value="">View All</option>
+                   @foreach (var char_load_id in Model.char_load_ids)
+                   {
+                       <option value="@char_load_id" @if(char_load_id == Model.searched_char_load_id){<text>selected</text>}>@char_load_id</option>
+
+                   }
+
+                </select>
+
+
+          </div>
+
+          <div class="form-group">
+          <label>Customer Ship To</label>
+            
+               <select class="form-control" name="ship_to_location_name" >
+                   <option value="">View All</option>
+                   @foreach (var ship_to_location_name in Model.ship_to_location_names)
+                   {
+                       <option value="@ship_to_location_name" @if(ship_to_location_name == Model.searched_ship_to_location_name){<text>selected</text>}>@ship_to_location_name</option>
+
+                   }
+
+                </select>
+          </div>
+
+          <div class="form-group">
+          <label>Route</label>
+            
+               <select class="form-control" name="rail_route" >
+                   <option value="">View All</option>
+                   @foreach (var rail_route in Model.rail_routes)
+                   {
+                       <option value="@rail_route" @if (rail_route == Model.searched_rail_route){<text>selected</text>}>@rail_route</option>
+
+                   }
+
+                </select>
+          </div>
+
+       
+
+         <div class="form-group">
+          <label>Car Type</label>
+            
+               <select class="form-control" name="rail_car_type" >
+                   <option value="">View All</option>
+                   @foreach (var rail_car_type in Model.rail_car_types)
+                   {
+                       <option value="@rail_car_type" @if (rail_car_type == Model.searched_rail_car_type){<text>selected</text>}>@rail_car_type</option>
+
+                   }
+
+                </select>
+
+          </div>
+
+
+
+              <!--<button class="btn btn-primary" type="submit">Search</button>-->
+
+        </form>
+
+        <br /><br />
+     
+     
+
+
+           <form action="/Shipping/PrintRailLoadsSubmit" method="post">
+
+             <button class="btn btn-primary" type="submit">Update Print/Stage</button>
+               <label class="radio-inline">Print Mode: </label>
+              <label class="radio-inline">
+                <input type="radio" name="print_mode" id="print_mode_1" value="Both" checked="">Both
+              </label>
+               <label class="radio-inline">
+                <input type="radio" name="print_mode" id="print_mode_1" value="BOL" >BOL
+              </label>
+               <label class="radio-inline">
+                <input type="radio" name="print_mode" id="print_mode_1" value="Load Card">Load Card
+              </label>
+
+               <br /><br />
+
+               
+  
+            <input type="hidden" name="schedule_date" value="@Model.searched_scheduled_date" />
+               <input type="hidden" name="char_load_id" value="@Model.searched_char_load_id" />
+               <input type="hidden" name="ship_to_location_name" value="@Model.searched_ship_to_location_name" />
+               <input type="hidden" name="rail_route" value="@Model.searched_rail_route" />
+               <input type="hidden" name="rail_car_type" value="@Model.searched_rail_car_type" />
+                <input type="hidden" name="print_status" value="@Model.searched_print_status" />
+
+
+        <table class="table table-bordered print_rail_loads">
+            <thead>
+                                        <tr>
+                                            <th style="width:100px;">Load</th>
+                                            <th>Coil No</th>
+                                            <th>Loc</th>
+                                            <th>Pack</th>
+                                            <th>P/C</th>
+                                            <th>Weight</th>
+                                            <th>Cust PO</th>
+                                            <th>Spec Inst Packing</th>
+                                            <th>Schedule</th>
+                                            <th>Carrier</th>
+                                            <th>Type</th>
+                                            <th>City, State</th>
+                                            <th>Ship To</th>
+                                            <th>Rail Route</th>
+
+                                           
+                                            
+                                        </tr>
+            </thead>
+        <tbody>
+
+            @if (Model.print_rail_loads.Count > 0)
+            {
+
+                var current_load = 1;
+                var td_class="striped";
+
+                foreach (var rail_load in Model.print_rail_loads)
+                {
+
+                    
+                    <tr class="">
+
+                        @if(current_load != rail_load.load_id)
+                        {
+
+                            if (td_class == "striped")
+                            {
+                                td_class = "not_striped";
+                            }
+                            else{
+                                td_class = "striped";
+                            }
+                            
+                            
+                            <td class="@td_class" rowspan="@rail_load.coil_count"><a href="/Shipping/LoadRail?char_load_id=@rail_load.char_load_id">@rail_load.char_load_id</a><br />
+                                Wt: @String.Format("{0:n0}", rail_load.total_coil_weight) <br />
+                                <input type="checkbox" name="print_load_ids" value="@rail_load.load_id" data-toggle="tooltip" data-placement="top" title="Last Printed: @if(rail_load.print_datetime == null){<text>N/A</text>} else{<text>@rail_load.print_datetime</text>}"> Print<br />
+                                <input type="checkbox" name="stage_load_ids" value="@rail_load.load_id" @if (@rail_load.stage_rail == "Y"){<text>checked</text>} /> Stage<br />
+                                @if (rail_load.shipped_date != null){<div class="shipped"><i class="fa fa-truck fa-fw"></i>Shipped</div>} else{<div class="not_shipped"><i class="fa fa-truck fa-fw"></i>Not Shipped</div>}
+                                @if (rail_load.print_datetime != null){<div class="printed" data-toggle="tooltip" data-placement="top" title="Last Printed: @if(rail_load.print_datetime == null){<text>N/A</text>} else{<text>@rail_load.print_datetime</text>}"><i class="fa fa-print fa-fw"></i>Printed</div>} else{<div class="not_printed"><i class="fa fa-print fa-fw"></i>Not Printed</div>}
+                                
+                            </td>
+                            
+                            
+                            
+                        }
+
+
+                        <td class="@td_class"><a href="/Coil/Index?production_coil_no=@rail_load.production_coil_no">@rail_load.production_coil_no</a></td>
+                        <td class="@td_class">@rail_load.column - @rail_load.row</td>
+                        <td class="@td_class">@rail_load.packaging_type</td>
+                        <td class="@td_class">@rail_load.prepaid_collect_flag</td>
+                        <td class="@td_class">@rail_load.coil_weight</td>
+                        <td class="@td_class">@rail_load.po_order_no</td>
+                        <td class="@td_class">@rail_load.spec_instruct_packing</td>
+
+
+                        @if (current_load != rail_load.load_id)
+                        {
+
+                            <td class="@td_class" rowspan="@rail_load.coil_count">@rail_load.schedule_date.ToShortDateString()</td>
+                            <td class="@td_class" rowspan="@rail_load.coil_count">@rail_load.carrier_name</td>
+                            <td class="@td_class" rowspan="@rail_load.coil_count">@rail_load.rail_car_type</td>
+                            <td class="@td_class" rowspan="@rail_load.coil_count">@rail_load.city, @rail_load.state</td>
+                            <td class="@td_class" rowspan="@rail_load.coil_count">@rail_load.ship_to_location_name_long</td>
+                            <td class="@td_class" rowspan="@rail_load.coil_count">@rail_load.rail_route</td>
+
+                        }
+
+                        
+                        
+                        
+                    </tr>
+                
+                
+                        current_load = rail_load.load_id;
+
+
+
+                }
+
+            }
+            else
+            {
+                <tr><td colspan="16">No scheduled rail loads</td></tr>
+            }
+
+              
+        </tbody>
+        </table>
+
+               
+            </form>
+
+           </div> 
+
+
+        </div>
+
+<!-- DataTables JavaScript -->
+    <script src="../Scripts/jquery.dataTables.min.js"></script>
+    <script src="../Scripts/dataTables.bootstrap.min.js"></script>
+    <script src="../Scripts/dataTables.responsive.js"></script>
+    <!--<script src="../Scripts/moment.js"></script>-->
+    <script src="../Scripts/bootstrap-datepicker.min.js"></script>
+    
+    <script src="../Scripts/jquery.mask.js"></script>
+    <script src="../Scripts/js.cookie.js"></script>
+
+   <script type="text/javascript">
+       //initiate datepicker
+       $('.datepicker').datepicker({
+           format: 'mm/dd/yyyy',
+           autoclose: true,
+           todayHighlight: true
+       });
+
+
+       //datatables/sum datatables
+       $('.dataTables').DataTable({
+           //responsive: true,
+           "paging": false,
+           stateSave: true,
+           'footerCallback': function (settings, json) {
+               this.api().columns('.sum').every(function () {
+                   var column = this;
+
+                   var sum = column
+                       .data()
+                       .reduce(function (a, b) {
+                           a = parseInt(a, 10);
+                           if (isNaN(a)) { a = 0; }
+
+                           b = parseInt(b, 10);
+                           if (isNaN(b)) { b = 0; }
+
+                           return a + b;
+                       });
+
+                   $(column.footer()).html(sum);
+               });
+           }
+       });
+
+
+       $(function () {
+           $('[data-toggle="tooltip"]').tooltip()
+       })
+
+
+       $('#id_scheduled_date').change(function () {
+           $("#IDPrintRailLoads").submit();
+       });
+
+       $('select').change(function () {
+           $("#IDPrintRailLoads").submit();
+       });
+
+   </script>
+
+<style type="text/css">
+
+    .shipped {
+        background-color:green;
+        color:white;
+        font-weight:bold;
+        margin-bottom:3px;
+        text-align:center;
+    }
+
+    .not_shipped {
+        background-color:yellow;
+        font-weight:bold;
+        margin-bottom:3px;
+        text-align:center;
+    }
+
+        .printed {
+        background-color:#286090;
+        color:white;
+        font-weight:bold;
+        margin-bottom:3px;
+        text-align:center;
+    }
+
+    .not_printed {
+        background-color:orange;
+        font-weight:bold;
+        margin-bottom:3px;
+        text-align:center;
+    }
+
+
+    .striped {
+        background-color:#f9f9f9;
+    }
+
+    .print_rail_loads {
+        font-size:12px;
+    }
+
+    .form-inline .form-group {
+        margin-right:15px;
+    }
+
+    .table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+        padding:5px;
+    }
+
+    .form-group label {
+         font-size:12px;
+    }
+
+    .form-group input {
+        font-size:12px;
+    }
+    .form-group select {
+        font-size:12px;
+    }
+</style>

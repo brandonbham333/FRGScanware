@@ -1,0 +1,93 @@
+﻿@using Scanware.Data
+@using System.Diagnostics;
+@using Scanware.Ancestor;
+
+@{
+    ViewBag.Title = "Reports";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Reports</h2>
+
+@{ 
+    string loc = "";
+
+    if (Session["reg_location"] == null)
+    {
+        loc = Util.GetRegLoc();
+        Session["reg_location"] = loc;
+    }
+    else
+    {
+        loc = Session["reg_location"].ToString();
+    }
+}
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Coils
+    </div>
+
+    <div class="panel-body">
+        @if (loc == "C")
+        {
+            <a class="btn btn-link" target="_blank" href="http://col-sql-03/ReportServer_DATAWAREHOUSE/Pages/ReportViewer.aspx?%2fScanware%2fCoilMaster&rs%3aCommand=Render">Coil Master</a>
+            <!--<a class="btn btn-link" target="_blank" href="http://col-sql-03/ReportServer_DATAWAREHOUSE/Pages/ReportViewer.aspx?%2fScanware%2fCoilByLocation&rs%3aCommand=Render">Coils by Location</a>-->
+            <!--<a class="btn btn-link" target="_blank" href="hhttp://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2freport_sw_unassigned_coils_5116&rs:Command=Render">Unassigned Coils</a>-->
+            <a class="btn btn-link" target="_blank" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2freport_sw_scrapped_coils_5118&rs:Command=Render">Scrapped Coils</a>
+            <a class="btn btn-link" target="_blank" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2freport_sw_mis_shipped_coils_5121&rs:Command=Render">Mis-Shipped Coils</a>
+            <a class="btn btn-link" target="_blank" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2freport_sw_consumed_coils_5132&rs:Command=Render">Consumed Coils</a>
+            <!--<a class="btn btn-link" target="_blank" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2freport_sw_lomas_on_hold_coils_5131&rs:Command=Render">Lomas On Hold Coils</a>-->
+            <a class="btn btn-link" target="_blank" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2freport_sw_cant_locate_coils_5124&rs:Command=Render">Can't Locate Coils</a>
+            <!--<a class="btn btn-link" target="_blank" href="http://col-sql-03/ReportServer_DATAWAREHOUSE/Pages/ReportViewer.aspx?%2fScanware%2fCoilIssue&rs%3aCommand=Render">Coil Issues</a>-->
+            <!--<a class="btn btn-link" target="_blank" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2freport_sw_to_be_wrapped_pickle_coils_5125&rs:Command=Render">Pickle Coils-To Be Wrapped</a>-->
+            <a class="btn btn-link" target="_blank" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2freport_sw_packaged_coils_5126&rs:Command=Render">Packaged Coils</a>
+        }
+        @if (loc == "S")
+        {
+            <a class="btn btn-link" target="_blank" href="http://fs3s-sql-genap1/Reports/report/ReportFramework/report_sw_scrapped_coils_5118">Scrapped Coils</a>
+            <a class="btn btn-link" target="_blank" href="http://fs3s-sql-genap1/Reports/report/ReportFramework/report_sw_mis_shipped_coils_5121">Mis-Shipped Coils</a>
+            <a class="btn btn-link" target="_blank" href="http://fs3s-sql-genap1/Reports/report/ReportFramework/report_sw_consumed_coils_5132">Consumed Coils</a>
+            <a class="btn btn-link" target="_blank" href="http://fs3s-sql-genap1/Reports/report/ReportFramework/report_sw_cant_locate_coils_5124">Can't Locate Coils</a>
+            <a class="btn btn-link" target="_blank" href="http://fs3s-sql-genap1/Reports/report/ReportFramework/report_sw_packaged_coils_5126">Packaged Coils</a>
+        }
+    </div>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Shipping
+    </div>
+
+    <div class="panel-body">
+        @if (loc == "C")
+        {
+            <a class="btn btn-link" target="_blank" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2freport_sw_shipping_activity_5127&rs:Command=Render">Shipping Activity</a>
+            <a class="btn btn-link" target="_blank" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2freport_sw_employee_shipments_5128&rs:Command=Render">Employee Shipments</a>
+            <a class="btn btn-link" target="_blank" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2freport_sw_rail_car_loads_5129&rs:Command=Render">Rail Car Loads</a>
+            <a class="btn btn-link" target="_blank" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2freport_sw_op_shipments_5130&rs:Command=Render">OP Shipments</a>
+            <a class="btn btn-link" target="_blank" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2fscanware_events_5242&rs:Command=Render">Scanware Events</a>
+        }
+
+            <a class="btn btn-link" target="_blank" href="http://fb3s-sql-prod/ReportServer//Pages/ReportViewer.aspx?%2fReportFramework%2fd_shipping_schedule_cm_1604&rs:Command=Render">Butler Schedule</a>
+            <a class="btn btn-link" target="_blank" href=http://fb3s-sql-prod/ReportServer//Pages/ReportViewer.aspx?%2fReportFramework%2fd_sdi_galv_sched_locations_1607&rs:Command=Render">Galv Scheduled Coils</a>
+   </div>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Inventory
+    </div>
+
+    <div class="panel-body">
+        @if (loc == "C")
+        {
+            <a class="btn btn-link" target="_blank" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2fsw_inventory_by_area_5050&rs:Command=Render">Inventory By Area</a>
+            <!--<a href="http://col-sql-03/ReportServer_DATAWAREHOUSE/Pages/ReportViewer.aspx?%2fScanware%2fInventory+Exception&rs%3aCommand=Render">Inventory Exception</a>-->
+            <!--<a href="http://col-sql-03/ReportServer_DATAWAREHOUSE/Pages/ReportViewer.aspx?%2fScanware%2fInventorySummary&rs%3aCommand=Render">Inventory Summary</a>-->
+        }
+        @if (loc == "S")
+        {
+            <a class="btn btn-link" target="_blank" href="http://fs3s-sql-genap1/Reports/report/ReportFramework/sw_inventory_by_area_5050">Inventory By Area</a>
+        }
+    </div>
+</div>

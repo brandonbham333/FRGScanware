@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1622
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scanware", "Scanware\Scanware.csproj", "{5BFAD9D1-B1CB-42C7-B93C-15DFD66EAB72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scanware.UnitTests", "Scanware.Testing\UnitTestProject1\Scanware.UnitTests.csproj", "{1FA613C3-09FD-4BD5-9E37-6DAAB23D95C4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5BFAD9D1-B1CB-42C7-B93C-15DFD66EAB72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BFAD9D1-B1CB-42C7-B93C-15DFD66EAB72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BFAD9D1-B1CB-42C7-B93C-15DFD66EAB72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BFAD9D1-B1CB-42C7-B93C-15DFD66EAB72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FA613C3-09FD-4BD5-9E37-6DAAB23D95C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FA613C3-09FD-4BD5-9E37-6DAAB23D95C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FA613C3-09FD-4BD5-9E37-6DAAB23D95C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FA613C3-09FD-4BD5-9E37-6DAAB23D95C4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {045D1767-3124-4580-B47D-F8DF781F4F9A}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 3
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = http://col-it01:8081/tfs/columbusdev
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = Scanware\\Scanware.csproj
+		SccProjectName1 = Scanware
+		SccLocalPath1 = Scanware
+		SccProjectUniqueName2 = Scanware.Testing\\UnitTestProject1\\Scanware.UnitTests.csproj
+		SccProjectName2 = Scanware.Testing/UnitTestProject1
+		SccLocalPath2 = Scanware.Testing\\UnitTestProject1
+	EndGlobalSection
+EndGlobal

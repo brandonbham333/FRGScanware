@@ -1,0 +1,73 @@
+﻿@{
+    ViewBag.Title = "ViewSchedule";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using Scanware.Data
+@{
+
+    function_level_security logged_in_user = new function_level_security(HttpContext.Current.Session["function_level_security"] as List<function_level_security>);
+
+}
+
+
+<h2>Rev Mill Schedule (Based on Report 427)</h2>
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+        <div class="panel-heading">
+            Error
+        </div>
+        <div class="panel-body">
+            <p>@Model.Error</p>
+        </div>
+    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+        <div class="panel-heading">
+            Message
+        </div>
+        <div class="panel-body">
+            <p>@Model.Message</p>
+        </div>
+    </div>
+}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Rev Mill Schedule
+    </div>
+
+    <div class="panel-body">
+        @if (Model.sdi_revmill_sched_Results != null)
+        {
+
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Coil</th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var sdi_revmill_sched_sp_model in Model.sdi_revmill_sched_Results)
+                    {
+                        <tr>
+                            <td>@sdi_revmill_sched_sp_model.c_coil</td>
+                            <td>@sdi_revmill_sched_sp_model.row - @sdi_revmill_sched_sp_model.column</td>
+                        </tr>
+
+                    }
+
+                </tbody>
+            </table>
+        }
+
+    </div>
+
+</div>

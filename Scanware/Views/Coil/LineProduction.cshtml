@@ -1,0 +1,205 @@
+﻿@{
+    ViewBag.Title = "LineProduction";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Line Production</h2>
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Error</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            Message
+                        </div>
+                        <div class="panel-body increase_font">
+                            <p>@Model.Message</p>
+                        </div>
+                    </div>
+}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Line Production
+    </div>
+
+    <div class="panel-body"> 
+
+ <form action="/Coil/LineProduction" method="get" id="LineProduction" name="LineProduction">
+          
+          <div class="form-group">
+          <label>Facility</label>
+            
+
+            <select name="facility_cd" onchange='this.form.submit()' class="form-control">     
+            <option value="">Select Facility</option>                     
+               @{
+               
+                   foreach (var processor in Model.schedule_product_processors)
+                   {                  
+                       <option value="@processor.facility_cd" @if (Model.current_facility_cd == @processor.facility_cd){<text>selected</text>} >@processor.facility_cd - @processor.name</option>
+                   }
+               }
+            </select>
+
+            <label>Column</label>
+            <select name="column" onchange='this.form.submit()' class="form-control @if (Model.current_facility_cd == "B"){<text>increase_font_select</text>}">     
+            <option value="">Select Area</option>                     
+               @{
+               
+                   foreach (var cols in Model.CoilYardCols)
+                   {                  
+                       <option value="@cols.column" @if(Model.current_column == cols.column){<text>selected</text>} >@cols.column - @cols.description</option>
+                   }
+               }
+            </select>
+       
+          <label>Row</label>
+            <select name="row" onchange='this.form.submit()' class="form-control @if (Model.current_facility_cd == "B"){<text>increase_font_select</text>}">                          
+                <option value=""></option>
+               @{
+                   
+                   if (Model.CoilYardRows!=null){
+                       foreach (var row in Model.CoilYardRows)
+                       {                  
+                           <option value="@row.row" @if (Model.current_row == row.row) {<text>selected</text>} >@row.row</option>
+                       }
+                   }
+               }
+            </select>
+
+          </div>
+
+</form>
+
+
+ <div class="form-group">
+          <label>Produced Coils</label>
+            <form action="/Coil/MoveProducedCoilToLocation" method="post">
+
+                @if(Model.current_row != "" && Model.current_row!=null && Model.current_column!="" && Model.current_column!=null){
+                    
+                    <button class="btn btn-primary" type="submit">Move Coil(s) to @Model.current_column - @Model.current_row</button>
+                    
+                }
+
+              <input type="hidden" name="facility_cd" value="@Model.current_facility_cd" />
+              <input type="hidden" name="column" value="@Model.current_column" />
+              <input type="hidden" name="row" value="@Model.current_row" />
+              <input type="hidden" name="saddle" value="@Model.current_saddle" />
+
+                <br /><br />
+                <table class="table table-striped table-bordered @if (Model.current_facility_cd == "B"){<text>increase_font</text>}">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Coil</th>
+                        @if (Model.current_facility_cd == "A")
+                        {
+                            <th>Stack Number</th>
+                        }
+
+                        <th>Weight</th>
+                        <th>Next Step</th>
+                        <th>Pack Code</th>
+                        @if (Model.current_facility_cd == "B")
+                        { 
+                            <th>Store Inside</th>
+                        }
+                        </tr>
+                </thead>
+                <tbody>
+
+                    
+                        @if (Model.produced_coils == null || Model.produced_coils.Count == 0)
+                        {
+                            <tr><td colspan="6" style="text-align:center;">No produced coils</td></tr>
+                        }
+                        else{
+                            foreach (var coil in Model.produced_coils)
+                        {
+                            <tr>
+
+                                <td><input type="checkbox" name="production_coil_no" value="@coil.production_coil_no" onchange="setLocalStorage();" /></td>
+
+
+                                <td><a href="/Coil/Index?production_coil_no=@coil.production_coil_no">@coil.production_coil_no</a></td>
+
+                                @if (Model.current_facility_cd == "A")
+                                {
+                                    <td>@coil.anneal_stack_no</td>
+                                }
+
+
+                                <td>@coil.coil_weight</td>
+                                <td>@coil.carrier_mode</td>
+                                <td>@coil.description</td>
+
+                                @if (Model.current_facility_cd == "B")
+                                {
+                                    <td>@coil.store_inside</td>
+                                }
+
+                                </tr>
+                        }
+                        }
+
+                    
+                                      
+                </tbody>
+                </table>
+
+
+
+            </form>
+          </div>
+</div>
+
+</div>
+
+
+<script type="text/javascript">
+
+    $('input[name="production_coil_no"]').each(function () {        //loop through each checkbox on page load
+        var prod_coil_no = $(this).val();                           //get coil #
+        var checked = window.localStorage.getItem(prod_coil_no);    //check localStorage if stored as checked
+        if (checked == "Y") {
+            $(this).prop("checked", true);                          //set checkbox to checked
+        }
+    });
+
+    function setLocalStorage() {
+        window.localStorage.clear();                                //clear localstorage so we don't store the same coil multiple times
+
+        $('input[name="production_coil_no"]').each(function () {    //loop through each checkbox
+            if ($(this).is(":checked")) {
+                var prod_coil_no = $(this).val();                   //get coil #
+                window.localStorage.setItem(prod_coil_no, "Y");     //set the coil # as Y which would indicate checked
+            }
+        });
+    }
+
+</script>
+
+<style type="text/css">
+
+.increase_font {
+    font-size: 30px;
+}
+
+.increase_font_select {
+    font-size: 20px;
+}
+
+
+</style>

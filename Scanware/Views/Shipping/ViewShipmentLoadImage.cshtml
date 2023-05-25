@@ -1,0 +1,62 @@
+﻿@{
+    ViewBag.Title = "ViewShipmentLoadImage";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@Model.shipment.char_load_id </h2>
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Error</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            Message
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Message</p>
+                        </div>
+                    </div>
+    
+}
+    
+
+    
+
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Image # @Model.load_image.image_no
+    </div>
+
+    <div class="panel-body">
+
+          <div class="form-group">
+      
+              @{
+                  var base64 = Convert.ToBase64String(Model.load_image_bytes.image_data);
+                  var imgSrc = String.Format("data:image/gif;base64,{0}", base64);
+            }
+
+            <img src="@imgSrc" style="width:100%;"/>
+               
+          </div>
+
+            <a href="/Shipping/LoadRail?char_load_id=@Model.shipment.char_load_id"class="btn btn-primary">Back to @Model.shipment.char_load_id</a>
+
+
+    </div>
+</div>
+
+
+        

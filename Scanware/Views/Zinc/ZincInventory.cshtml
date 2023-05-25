@@ -1,0 +1,298 @@
+﻿@using Scanware.Data
+@model Scanware.Models.ZincModel
+@{
+    ViewBag.Title = "Zinc";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Zinc Inventory</h2>
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Error</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            Message
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Message</p>
+                        </div>
+                    </div>
+}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Ingots in Inventory: (@Model.zincInventory.Count)
+    </div>
+
+    <div class="panel-body">
+        <p> <b> Scan Ingots to confirm Inventory</b> <input id="Ingot-Id-Text" type="text" name="scanned_ingot_id" value="" /><button class="nm-button" onclick="Check()">
+             + </button><br></p>
+        <p style="color:green;"> <text id="conf-msg"> <b></b> </text><br></p>
+        <table class="table table-striped table-bordered" id="ingots">
+            <thead>
+                <tr>
+                    <th>Ingot ID</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (zinc_tracking ingot in Model.zincInventory)
+                {
+                    <tr id="IngotRow-@ingot.ingot_id">
+                        <td id="IngotId-@ingot.ingot_id">
+                            <button style="float:left; color:green; " onclick="checkForIngot('@ingot.ingot_id')">V</button>&emsp;&emsp;
+                            <a href="/Zinc/IngotStatus?ingot_id=@ingot.ingot_id">@ingot.ingot_id</a>&emsp;&emsp;
+                            <button style="float:right; color:red;" onclick="RemoveIngot('@ingot.ingot_id')">X</button>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var is_scanner_used;
+    function checkForIngot(passedIngot)
+    {
+        var checked = $("#IngotRow-" + passedIngot).length;
+
+        $("#conf-msg").html("");
+
+        if (checked == 1)
+        {
+            $('#IngotId-' + passedIngot).addClass("goodIngot")
+            $('#Ingot-Id-Text').focus(
+                   function ()
+                   {
+                       $(this).val('');
+                   });
+            UpdateIngot(passedIngot);
+        }
+        else
+        {
+            if (passedIngot.trim() != "")
+            {
+                var IngotNotFoundConfirm = confirm("Ingot: " + passedIngot + " not found. Add Ingot To Inventory?")
+                if (IngotNotFoundConfirm == true)
+                {
+                    AddNewIngot(passedIngot);
+                }
+            }
+        }
+
+    }
+
+    //Ajax call to update User Info for this Ingot
+    function UpdateIngot(passedIngot)
+    {
+        if (passedIngot.trim() != "")
+        {
+
+            if (is_scanner_used == null)
+            {
+                is_scanner_used = 'N';
+            }
+
+            $.ajax(
+            {
+                url: "/Zinc/UpdateUserInLocation",
+                data: { IngotNumber: passedIngot, isScannerUsed: is_scanner_used },
+                type: "POST",
+                success: function (result)
+                {
+                    if (result.length > 0)
+                    {
+                        alert(result);
+                    }
+                    else
+                    {
+                        var msg = passedIngot + " Confirmed and Updated!"
+                        $("#conf-msg").html(msg);
+                    }
+                }
+            });
+        }
+    }
+
+    //Adds new Ingot row to the table when successful ajax call happens
+    function AddNewIngot(passedIngot)
+    {
+        if (passedIngot.trim() != "")
+        {
+
+            var passedRow = $('#row').val();
+
+            if (is_scanner_used == null)
+            {
+                is_scanner_used = 'N';
+            }
+
+            $.ajax({
+                url: "/Zinc/AddIngot",
+                data: { IngotNumber: passedIngot, isScannerUsed : is_scanner_used},
+                type: "POST",
+                success: function (result)
+                {
+                    if (result == null || result == "SUCCESS")
+                    {
+                        $('#ingots tr:first').after('<tr id="IngotRow-' + passedIngot + '"><td class="addedIngot" id="IngotId-' + passedIngot + '"> ' +
+                            '<button style="float:left; color:green; " onclick="checkForIngot(\'' + passedIngot + '\')">V</button>&emsp;&emsp;' +
+                            '<a href="/Zinc/IngotStatus?ingot_id=' + passedIngot + '">' + passedIngot + '</a>' +
+                        '<button style="float:right;color:red;" onclick="RemoveIngot(\'' + passedIngot + '\')">X</button>' + ' </td></tr>');
+                        $('#Ingot-Id-Text').focus(
+                        function ()
+                        {
+                            $(this).val('');
+                        });
+
+                        updateIngotNumber();
+                    }
+                    else
+                    {
+                        alert(result);
+                    }
+                }
+            });
+        }
+    }
+
+            function Check()
+            {
+                checkForIngot($('#Ingot-Id-Text').val());
+            }
+
+            //removes Ingot
+            function RemoveIngot(passedIngot)
+            {
+                $("#conf-msg").html("");
+                var IngotDeleteConfirm = confirm("Remove Ingot " + passedIngot + " ?")
+                if (IngotDeleteConfirm == true)
+                {
+
+                    if (is_scanner_used == null)
+                    {
+                        is_scanner_used = 'N';
+                    }
+
+                    $.ajax({
+                        url: "/Zinc/RemoveIngot",
+                        data: { IngotNumber: passedIngot, is_scanner_used: is_scanner_used },
+                        type: "POST",
+                        success: function (result)
+                        {
+                            if (result == null || result == "SUCCESS")
+                            {
+                                $('#IngotRow-' + passedIngot).remove();
+                                $('#Ingot-Id-Text').focus(
+                                function () {
+                                    $(this).val('');
+                                });
+                                updateIngotNumber();
+                            }
+                            else
+                            {
+                                alert(result);
+                            }
+                        }
+                    });
+
+                }
+            }
+            function updateIngotNumber()
+            {
+                var numberOfIngots = $('#ingots tr td').length;
+                $('.panel-heading').html('Ingots in Location (' + numberOfIngots + ')');
+            }
+</script>
+
+@if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57"))
+{ //if using zebra scanner
+    <script type="text/javascript" charset="utf-8" src="../Scripts/ebapi-modules.js"></script>
+    <script type="text/javascript">
+
+        is_scanner_used = 'Y';
+
+        $(document).ready(function ()
+        {
+            EB.Barcode.enable({ allDecoders: true }, fnBarcodeScanned); //enable
+        });
+
+        function fnBarcodeScanned(jsonObject)
+        {
+
+            var IngotNum = jsonObject.data;
+
+
+            if ((IngotNum.substring(0, 1) == ("D")) || (IngotNum.substring(0, 1) == ("B")) || (IngotNum.substring(0, 1) == ("G")) || (IngotNum.substring(0, 1) == ("R")) || (IngotNum.substring(0, 1) == ("O")))
+            {
+                IngotNum = IngotNum.toUpperCase();
+
+                checkForIngot(IngotNum);
+            }
+
+        }
+
+    </script>
+}
+else
+{
+    <script>
+        $(document).ready(function ()
+        {
+
+        });
+        $(document).on('keypress', function (e)
+        {
+            if (e.which == 13)
+            {
+                e.preventDefault();
+                checkForIngot($('#Ingot-No-Text').val());
+
+            }
+        });
+    </script>
+}
+
+
+<style type="text/css">
+    .table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+        padding: 1px 8px;
+    }
+
+    .table {
+        margin-bottom: 0px;
+    }
+
+    .goodIngot {
+        background-color: green;
+    }
+
+        .goodIngot > a {
+            color: white;
+        }
+
+    .addedIngot {
+        background-color: yellow;
+    }
+
+        .addedIngot > a {
+            color: black;
+        }
+
+    .nm-button {
+        font-weight: bold;
+    }
+</style>

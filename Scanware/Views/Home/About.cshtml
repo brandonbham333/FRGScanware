@@ -1,0 +1,82 @@
+﻿@model Scanware.Models.HomeModel
+@using System.Diagnostics
+
+<hgroup class="title">
+
+    <h1>About</h1>
+
+    <div class="panel panel-default" style="width:40%">
+        <div class="panel-heading">
+            <h3 class="panel-title">@Model.CurrentApplication.description (@Model.Application)</h3>
+        </div>
+        <div class="panel-body">
+
+            <h3>Version @Model.ApplicationVersion</h3>
+
+            <h3>@Model.user_info.first_name @Model.user_info.last_name (@Model.user_info.user_name)</h3>
+
+            <h3>Computer - @Model.ComputerName</h3>
+
+            @if (Debugger.IsAttached)
+            {
+                <form method="post" action="/Home/ChangeLocation">
+                    <div class="form-group">
+                        <label>Location:</label>
+                        <select name="location" class="form-control">
+                            <option value="B"
+                                    @if (Model.Location == "B") { @: selected
+                                    }>
+                                Butler
+                            </option>
+                            <option value="C"
+                                    @if (Model.Location == "C") { @: selected
+                                    }>
+                                Columbus
+                            </option>
+                            <option value="H"
+                                    @if (Model.Location == "H") { @: selected
+                                    }>
+                                Heartland
+                            </option>
+                            <option value="T"
+                                    @if (Model.Location == "T") { @: selected
+                                    }>
+                                Techs
+                            </option>
+                            <option value="S"
+                                    @if (Model.Location == "S") { @: selected
+                                                                        }>
+                                Sinton
+                            </option>
+                            <option value="M"
+                                    @if (Model.Location == "M") { @: selected
+                                                                                                            }>
+                                Mexico
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Database:</label>
+                        <select name="live_test" class="form-control">
+                            <option value="L"
+                                    @if (Model.Database == "L") { @: selected
+                                    }>
+                                Production
+                            </option>
+                            <option value="T"
+                                    @if (Model.Database == "T") { @: selected
+                                    }>
+                                Test
+                            </option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success" type="submit">Submit Changes</button>
+                </form>
+            }
+        </div>
+    </div>
+
+</hgroup>
+
+
+

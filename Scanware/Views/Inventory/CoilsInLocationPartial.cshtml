@@ -1,0 +1,312 @@
+﻿@using Scanware.Data
+@{
+
+    function_level_security logged_in_user = new function_level_security(HttpContext.Current.Session["function_level_security"] as List<function_level_security>);
+
+}
+
+<h2>Coils In Location</h2>
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+        <div class="panel-heading">
+            Error
+        </div>
+        <div class="panel-body">
+            <p>@Model.Error</p>
+        </div>
+    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+        <div class="panel-heading">
+            Message
+        </div>
+        <div class="panel-body">
+            <p>@Model.Message</p>
+        </div>
+    </div>
+}
+
+@if (Model.coilsInLocation != null)
+{
+    <input type="hidden" name="name" value="@Model.current_row" id="row" />
+    <input type="hidden" name="name" value="@Model.current_coil_yard_bay" id="bay" />
+    <input type="hidden" name="name" value="@Model.current_column" id="column" />
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            Coils in Location @Model.current_column-@Model.current_row &nbsp;&nbsp;&nbsp;&nbsp; (@Model.coilsInLocation.Count)                   
+        </div>
+
+        <div class="panel-body">
+
+            <table class="table table-striped table-bordered" id="coils">
+                <thead>
+                    <tr>
+                        <th>Coil No</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (CoilsInLocation coil in Model.coilsInLocation)
+                    {
+                        <tr id="coilRow-@coil.production_coil_no.Trim()">
+                            <td id="coilNumber-@coil.production_coil_no.Trim()">
+                                <button style="float:left; color:green; " onclick="checkForCoil('@coil.production_coil_no.Trim()')">V</button>&emsp;&emsp;
+                                <a href="/Coil/Index?production_coil_no=@coil.production_coil_no">@coil.production_coil_no.Trim()</a>&emsp;&emsp;
+                                <button style="float:right; color:red;" onclick="RemoveCoil('@coil.production_coil_no.Trim()')">X</button>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+            <p> <b> Scan Coils to Validate</b> <input id="Coil-No-Text" type="text" name="scanned_coil_no" value="" /><button class="nm-button" onclick="Check()"> + </button><br><br> <button class="btn btn-primary" type="submit" onclick="SubmitLocation()">Confirm Location</button></p>
+        </div>
+    </div>
+}
+else
+{
+    <p> No Coils in Location </p>
+}
+
+<script type="text/javascript">
+    var is_scanner_used;
+    function checkForCoil(passedCoil) {
+        var checked = $("#coilRow-"+passedCoil).length;
+
+        if (checked == 1) {
+            $('#coilNumber-' + passedCoil).addClass("goodCoil")
+            $('#Coil-No-Text').focus(
+                   function () {
+                       $(this).val('');
+                   });
+            UpdateCoil(passedCoil);
+        }
+        else
+        {
+            if (passedCoil.trim() != "")
+            {
+                var coilNotFoundConfirm = confirm("Coil: " + passedCoil + " not found. Add Coil To Location?")
+                if (coilNotFoundConfirm == true)
+                {
+                    AddNewCoil(passedCoil);
+                }
+            }
+        }
+
+    }
+
+    function SubmitLocation()
+    {
+        var numberOfCoils = $('#coils tr td').length;
+        var passedRow = $('#row').val();
+        var passedCol = $('#column').val();
+
+        $.ajax(
+           {
+               url: "/Inventory/AllCoilsValidated",
+               data: { row: passedRow, column: passedCol},
+               type: "POST",
+               success: function (result) {
+                   if (result == 0)
+                   {
+                       alert("Not All Coils were validated. Cannot Confirm Location!");
+                   }
+                   else {
+                       alert("All Coils have been Validated for Location " + passedCol + "-" + passedRow);
+                       location.reload();
+                       // $.post("/Inventory/LocationComplete/");
+
+
+                   }
+               }
+           });
+    }
+    //Ajax call to update User Info for this Coil Yard Location
+    function UpdateCoil(passedCoil)
+    {
+        if (passedCoil.trim() != "")
+        {
+            var passedRow = $('#row').val();
+            var passedCol = $('#column').val();
+
+            if (is_scanner_used == null)
+            {
+                is_scanner_used = 'N';
+            }
+
+            $.ajax(
+            {
+                url: "/Inventory/UpdateUserInLocation",
+                data: { coilNumber: passedCoil, row: passedRow, column: passedCol, isScannerUsed: is_scanner_used },
+                type: "POST",
+                success: function (result)
+                {
+                    if (result.length > 0)
+                    {
+                        alert(result);
+                    }
+                }
+            });
+        }
+    }
+
+    //Adds new coil row to the table when successful ajax call happens
+    function AddNewCoil(passedCoil) {
+        if (passedCoil.trim() != "")
+        {
+
+        var passedRow = $('#row').val();
+        var passedCol = $('#column').val();
+        var passedBay = $('#bay').val();
+
+        if (is_scanner_used == null)
+        {
+            is_scanner_used = 'N';
+        }
+
+        $.ajax({
+            url: "/Inventory/AddCoilToLocation",
+            data: { coilNumber: passedCoil, row: passedRow, column: passedCol, bay: passedBay, isScannerUsed : is_scanner_used},
+            type: "POST",
+            success: function (result)
+            {
+                if (result == null || result == "SUCCESS")
+                {
+                    $('#coils tr:last').after('<tr id="coilRow-' + passedCoil + '"><td class="addedCoil" id="coilNumber-' + passedCoil + '">' +
+                                         '<a href="/Coil/Index?production_coil_no=' + passedCoil + '">' + passedCoil + '</a>' +
+                                         '<button style="float:right" onclick="RemoveCoil(\'' + passedCoil + '\')">X</button>' +
+                                     '</td></tr>');
+                    $('#Coil-No-Text').focus(
+                    function () {
+                        $(this).val('');
+                    });
+
+                    updateCoilNumber();
+                }
+                else
+                {
+                    alert(result);
+                }
+            }
+        });
+        }
+    }
+
+    function Check()
+    {
+        checkForCoil($('#Coil-No-Text').val());
+    }
+
+    //removes coil
+    function RemoveCoil(passedCoil) {
+
+        var coilDeleteConfirm = confirm("Remove Coil " + passedCoil + " From Location?")
+        if (coilDeleteConfirm == true) {
+            var passedRow = $('#row').val();
+            var passedCol = $('#column').val();
+            var passedBay = $('#bay').val();
+
+            if (is_scanner_used == null)
+            {
+                is_scanner_used = 'N';
+            }
+
+            $.ajax({
+                url: "/Inventory/RemoveCoilFromLocation",
+                data: { coilNumber: passedCoil, row: passedRow, column: passedCol, bay: passedBay, is_scanner_used: is_scanner_used },
+                type: "POST",
+                success: function (result)
+                {
+                    if (result == null || result == "")
+                    {
+                        $('#coilRow-' + passedCoil).remove();
+                        $('#Coil-No-Text').focus(
+                        function () {
+                            $(this).val('');
+                        });
+                        updateCoilNumber();
+                    }
+                    else
+                    {
+                        alert(result);
+                    }
+                }
+            });
+
+        }
+    }
+    function updateCoilNumber() {
+        var numberOfCoils = $('#coils tr td').length;
+        $('.panel-heading').html('Coils in Location (' + numberOfCoils + ')');
+}
+</script>
+
+@if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57"))
+{ //if using zebra scanner
+
+    <script type="text/javascript">
+
+        is_scanner_used = 'Y';
+
+        $(document).ready(function ()
+        {
+            EB.Barcode.enable({ allDecoders: true }, fnBarcodeScanned); //enable
+        });
+
+        function fnBarcodeScanned(jsonObject) {
+
+            var coilNum = jsonObject.data;
+            coilNum = coilNum.toUpperCase();
+            if (coilNum.substring(0, 1) == "S")
+            {
+                coilNum = coilNum.substring(1, coilNum.length)
+            }
+
+            checkForCoil(coilNum);
+        }
+
+    </script>
+}
+else
+{
+    <script>
+        $(document).ready(function () {
+
+        });
+        $(document).on('keypress', function (e)
+        {
+            if (e.which == 13)
+            {
+                e.preventDefault();
+                checkForCoil($('#Coil-No-Text').val());
+
+            }
+        });
+    </script>
+}
+<style>
+    .goodCoil {
+        background-color: green;
+    }
+
+        .goodCoil > a {
+            color: white;
+        }
+
+    .addedCoil {
+        background-color: yellow;
+    }
+
+        .addedCoil > a {
+            color: black;
+        }
+
+    .nm-button {
+        font-weight: bold;
+    }
+</style>

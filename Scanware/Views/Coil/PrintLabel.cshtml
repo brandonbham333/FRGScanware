@@ -1,0 +1,112 @@
+﻿@{
+    ViewBag.Title = "PrintLabel";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Print Label</h2>
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Error</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            Message
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Message</p>
+                        </div>
+                    </div>
+}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Print Label
+    </div>
+
+    <div class="panel-body">
+
+        <form action="/Coil/PrintLabel" method="post" id="PrintLabel" name="PrintLabel">
+           
+          <div class="form-group">
+          <label>Printer</label>
+            <select name="printer_path" onchange='' class="form-control">     
+            <option value="">Select Printer</option>                     
+               @{
+               
+                   foreach (var printer in Model.available_printers)
+                   {                  
+                       <option value="@printer.path" @if(Model.selected_printer_path == printer.path){<text>selected</text>} >@printer.description</option>
+                   }
+               }
+            </select>
+          </div>
+
+            <div class="form-group">
+          <label>Template</label>
+            <select name="template_cd" onchange='' class="form-control">     
+            <option value="">Select Template</option>                     
+               @{
+               
+                   foreach (var template in Model.zebra_templates)
+                   {                  
+                       <option value="@template.pk" @if (Model.selected_template != null && Model.selected_template.pk == template.pk)
+                                                    {<text>selected</text>}>@template.name</option>
+                   }
+               }
+            </select>
+          </div>
+
+          <div class="form-group">
+          <label>Coil Number</label>
+            <input type="text" name="production_coil_no" class="form-control" id="production_coil_no" value="@Model.searched_coil_number"/>
+          </div>
+
+            <button class="btn btn-primary" type="submit">Print</button>
+
+        </form>
+
+    </div>
+</div>
+    
+<div>
+    @Request.UserAgent.ToString()
+</div>
+
+@if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57"))
+{
+    //if using zebra scanner
+
+    <script type="text/javascript" charset="utf-8" src="../Scripts/ebapi-modules.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            EB.Barcode.enable({ allDecoders: true }, fnBarcodeScanned); //enable
+        });
+
+        function fnBarcodeScanned(jsonObject)
+        {
+
+            var coilNum = jsonObject.data;
+            coilNum = coilNum.toUpperCase();
+
+            if (coilNum.substring(0, 1) == "S") {
+                coilNum = coilNum.substring(1, coilNum.length)
+            }
+
+            document.getElementById("production_coil_no").value = coilNum;
+            document.PrintLabel.submit();
+        }
+
+    </script>
+}

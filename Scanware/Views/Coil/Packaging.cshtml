@@ -1,0 +1,180 @@
+﻿@{
+    ViewBag.Title = "Packaging";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript">
+    function CountCoil(CoilNumber) {
+        document.getElementById('production_coil_no').value = CoilNumber;
+    }
+</script>
+
+
+<meta http-equiv="IBrowse_ScannerNavigate" content="Javascript:OnScan('%s','%s','%s');" />
+<script type="text/javascript">
+    function OnScan(data1, type1, time1) {
+        var coilNum = data1;
+        coilNum = coilNum.toUpperCase();
+        document.getElementById("production_coil_no").value = coilNum;
+
+        document.Packaging.submit();
+    }
+</script>
+
+
+@if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57"))
+{ //if using zebra scanner
+
+    <script type="text/javascript" charset="utf-8" src="../Scripts/ebapi-modules.js"></script>
+    <script type="text/javascript">
+
+
+        $(document).ready(function () {
+            EB.Barcode.enable({ allDecoders: true }, fnBarcodeScanned); //enable
+        });
+
+        function fnBarcodeScanned(jsonObject) {
+
+            var coilNum = jsonObject.data;
+            coilNum = coilNum.toUpperCase();
+
+            if (coilNum.substring(0, 1) == "S") {
+                coilNum = coilNum.substring(1, coilNum.length)
+            }
+
+            document.getElementById("production_coil_no").value = coilNum;
+
+            document.Packaging.submit();
+
+        }
+
+    </script>
+}
+
+
+
+<h2>Packaging</h2>
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+        <div class="panel-heading">
+            Error
+        </div>
+        <div class="panel-body">
+            <p>@Model.Error</p>
+        </div>
+    </div>
+}
+
+
+@if (Model.Alert != null)
+{
+    <div class="panel panel-yellow">
+        <div class="panel-heading">
+            Alert
+        </div>
+        <div class="panel-body">
+            <p>@Model.Alert</p>
+        </div>
+    </div>
+
+
+}
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+        <div class="panel-heading">
+            Message
+        </div>
+        <div class="panel-body">
+            <p>@Model.Message</p>
+        </div>
+    </div>
+}
+
+
+
+
+<form action="" method="post" id="Packaging" name="Packaging">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            Packaging List
+        </div>
+
+        <div class="panel-body">
+            <div class="form-group">
+                <label>Type of Packaging</label>
+                <select class="form-control" name="TypeOfPackaging" id="TypeOfPackaging" onchange='this.form.submit()'>
+                    <option value="line_package" @if (Model.current_type_of_packaging == "line_package") { <text> selected</text>}>
+                        Line Package
+                    </option>
+                    <option value="further_package" @if (Model.current_type_of_packaging == "further_package") { <text> selected</text>}>
+                        Further Package
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Scan Coil Number</label>
+                <input class="form-control" type="text" id="production_coil_no" name="production_coil_no" />
+            </div>
+
+            <div class="form-group">
+                <label>Or Select From List</label>
+            </div>
+
+            <div class="form-group">
+                <label>Select Line</label>
+                <select class="form-control" name="facility_cd" id="facility_cd" onchange='this.form.submit()'>
+                    <option value="">Select Line</option>
+                    @foreach (var pp in Model.schedule_product_processors)
+                    {
+                        <option value="@pp.facility_cd" @if (Model.current_facility_cd == pp.facility_cd) { <text> selected</text>}>@pp.name</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Coils</label>
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr><th></th><th>Coil</th><th>Location</th><th>Pack Code</th><th>Mode</th><th>In a Load</th><th>Scanned</th></tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.coils_to_package == null || Model.coils_to_package.Count == 0)
+                        {
+                            <tr><td colspan="7" style="text-align:center;">No coils to be packaged</td></tr>
+                        }
+                        else
+                        {
+                            foreach (var coil in Model.coils_to_package)
+                            {
+                                string mode = coil.carrier_mode;
+                                switch (mode)
+                                {
+                                    case "B": mode = "Barge"; break;
+                                    case "T": mode = "Truck"; break;
+                                    case "R": mode = "Rail"; break;
+                                    default: mode = ""; break;
+                                }
+
+                                char status = coil.coil_status == "IL" ? 'Y' : 'N';
+
+                                <tr>
+                                    <td><button class="btn btn-primary" type="submit" onclick="CountCoil('@coil.production_coil_no')">Packaged</button></td>
+                                    <td><a href="/Coil/Index?production_coil_no=@coil.production_coil_no">@coil.production_coil_no</a></td>
+                                    <td>@coil.column - @coil.row</td>
+                                    <td>@coil.description</td>
+                                    <td>@mode</td>
+                                    <td style="text-align: center;">@status</td>
+                                    <td style="width: 150px;">@coil.coil_scanned_dt</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,155 @@
+﻿@{
+    ViewBag.Title = "LocationReconcile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using Scanware.Data
+
+<div id="coilContainer">
+    <h2>Coil Yard Location Audit</h2>
+
+    @if (Model.Error != null)
+    {
+        <div class="panel panel-red">
+            <div class="panel-heading">
+                Error
+            </div>
+            <div class="panel-body">
+                <p>@Model.Error</p>
+            </div>
+        </div>
+    }
+
+    @if (Model.Message != null)
+    {
+        <div class="panel panel-green">
+            <div class="panel-heading">
+                Message
+            </div>
+            <div class="panel-body">
+                <p>@Model.Message</p>
+            </div>
+        </div>
+    }
+
+    @if (Model.Alert != null)
+    {
+        <div class="panel panel-yellow">
+            <div class="panel-heading">
+                Alert
+            </div>
+            <div class="panel-body">
+                <p>@Model.Alert</p>
+            </div>
+        </div>
+    }
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            Coil Location
+        </div>
+
+        <div class="panel-body">
+
+            <form action="/Inventory/LocationReconcile" method="post" id="LocationReconcile" name="LocationReconcile">
+
+                @if (Model.CoilYardBays.Count > 0)
+                {
+                    <div class="form-group">
+                        <label>Bay</label>
+                        <select name="bay_cd" onchange='this.form.submit()' class="form-control">
+                            <option value="">Select Bay</option>
+                            @{
+
+                                foreach (var bays in Model.CoilYardBays)
+                                {
+                                    <option value="@bays.bay_cd" @if (Model.current_coil_yard_bay.bay_cd == bays.bay_cd) { <text> selected</text>}>@bays.bay_cd - @bays.bay_desc</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                }
+
+                <div class="form-group">
+                    <label>Column</label>
+                    <select name="column" onchange='this.form.submit()' class="form-control">
+                        <option value="">Select Area</option>
+                        @{
+
+                            foreach (var cols in Model.CoilYardCols)
+                            {
+                                <option value="@cols.column" @if (Model.current_column == cols.column) { <text> selected</text>}>@cols.column - @cols.description</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Row</label>
+                    <select name="row" class="form-control">
+                        @{
+                            foreach (var row in Model.CoilYardRows)
+                            {
+                                <option value="@row.row" @if (Model.current_row == row.row) { <text> selected</text>}>@row.row</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>OR</label>
+                    <br>
+
+                    <b> Scan Location</b> <input id="scanned_location" type="text" name="scanned_location" />
+
+                </div>
+
+                <button class="btn btn-primary" type="button" onclick="CoilsInLocation()">Get Coils</button>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function CoilsInLocation()
+    {
+        $.ajax(
+            {
+            url: "/Inventory/CoilsInLocation",
+            data: $('#LocationReconcile').serialize(),
+            type: "POST",
+            success: function (result) {
+                $('#coilContainer').html(result);
+            }
+        });
+
+    }
+</script>
+
+@if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57"))
+{ //if using zebra scanner
+
+    <script type="text/javascript" charset="utf-8" src="../Scripts/ebapi-modules.js"></script>
+    <script type="text/javascript">
+
+
+        $(document).ready(function ()
+        {
+            EB.Barcode.enable({ allDecoders: true }, fnBarcodeScanned); //enable
+        });
+
+        function fnBarcodeScanned(jsonObject)
+        {
+
+            var location = jsonObject.data;
+            document.getElementById("scanned_location").value = location;
+            CoilsInLocation()
+        }
+
+    </script>
+}
+
+

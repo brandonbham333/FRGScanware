@@ -1,0 +1,150 @@
+﻿@{
+    ViewBag.Title = "LoadRail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using Scanware.Data
+@{
+   
+    function_level_security logged_in_user = new function_level_security(HttpContext.Current.Session["function_level_security"] as List<function_level_security>);
+
+}
+
+
+<h2>OP Return Validate</h2>
+
+@if (Model.Error != null)
+{
+    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            Error
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Error</p>
+                        </div>
+                    </div>
+}
+
+@if (Model.Message != null)
+{
+    <div class="panel panel-green">
+                        <div class="panel-heading">
+                            Message
+                        </div>
+                        <div class="panel-body">
+                            <p>@Model.Message</p>
+                        </div>
+                    </div>
+}
+
+
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        OP Return Validate
+    </div>
+
+    <div class="panel-body">
+
+        <form action="/Shipping/OPReturnValidateCoil" method="get" id="ValidateOP" name="ValidateOP">
+    
+            <div class="form-group">
+            <label>Scan OP Tag Number</label>
+            <input class="form-control" id="tag_number" type="text" name="tag_no" value="" />
+            </div>
+    
+
+        </form>
+
+
+
+
+        <meta http-equiv="IBrowse_ScannerNavigate" content="Javascript:OnScan('%s','%s','%s');" />
+        <script type="text/javascript">
+
+            function OnScan(data1, type1, time1) {
+                var coilNum = data1;
+                coilNum = coilNum.toUpperCase();
+
+                document.getElementById("tag_no").value = coilNum;
+
+                document.ValidateOP.submit();
+            }
+
+            $(document).ready(function () {
+                $("#tag_no").focus();
+            });
+
+        </script>
+
+
+
+        @if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57"))
+        { //if using zebra scanner
+
+            <script type="text/javascript" charset="utf-8" src="../Scripts/ebapi-modules.js"></script>
+            <script type="text/javascript">
+
+
+                $(document).ready(function () {
+                    EB.Barcode.enable({ allDecoders: true }, fnBarcodeScanned); //enable 
+                });
+
+                function fnBarcodeScanned(jsonObject) {
+
+                    var coilNum = jsonObject.data;
+
+                    coilNum = coilNum.toUpperCase();
+                    document.getElementById("tag_no").value = coilNum;
+
+                    document.ValidateOP.submit();
+
+                }
+
+            </script>
+        }
+
+
+        <br /><br />
+
+ <table class="table table-striped table-bordered">
+            <thead>
+                                        <tr>
+                                            <th>OP Tag Number</th>
+                                            <th>Production Coil No</th>
+                                            <th>Location</th>
+                                            <th>Add Date</th>
+                                        </tr>
+            </thead>
+        <tbody>
+
+            @foreach (var coil in Model.op_coil_validate)
+            {
+                <tr>
+ 
+                        <td><a href="/Shipping/OPReturnValidateCoil?tag_no=@coil.tag_no">@coil.tag_no</a></td>
+                        <td>@coil.production_coil_no</td>
+                        <td>@coil.coil_yard_location</td>
+                        <td>@coil.add_datetime</td>
+         
+                </tr>
+
+            }
+            @if (Model.op_coil_validate.Count == 0)
+            {
+                <tr><td colspan="4" style="text-align:center;">No coils to validate</td></tr>
+            }
+
+              
+        </tbody>
+        </table>
+
+
+
+
+    </div>
+</div>
+    
+
+
+   

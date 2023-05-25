@@ -1,0 +1,167 @@
+﻿@model Scanware.Models.KioskModel
+@using System.Diagnostics;
+@using Scanware.Ancestor;
+@using Scanware.Properties;
+
+@{
+    string loc = "";
+    string loc_long = "";
+    string test = "";
+    //if in dubug mode allow for switch - otherwise always assume production
+    if (Debugger.IsAttached)
+    {
+        if (Session["reg_location"] == null)
+        {
+            loc = Util.GetRegLoc();
+            Session["reg_location"] = loc;
+        }
+        else
+        {
+            loc = Session["reg_location"].ToString();
+        }
+
+        if (Session["reg_livetest"] == null)
+        {
+            test = Util.GetRegLiveTest();
+            Session["reg_livetest"] = test;
+        }
+        else
+        {
+            test = Session["reg_livetest"].ToString();
+        }
+    }
+    else
+    {
+        if (Session["reg_location"] == null)
+        {
+            loc = Util.GetRegLoc();
+            Session["reg_location"] = loc;
+        }
+        else
+        {
+            loc = Session["reg_location"].ToString();
+        }
+
+        test = "L";
+    }
+
+    if (loc == "B")
+    {
+        loc_long = "Butler";
+    }
+    else if (loc == "C")
+    {
+        loc_long = "Columbus";
+    }
+    else if (loc == "H")
+    {
+        loc_long = "Heartland";
+    }
+    else if (loc == "T")
+    {
+        loc_long = "Techs";
+    }
+    else if (loc == "S")
+    {
+        loc_long = "Sinton";
+    }
+
+    if (test == "T")
+    {
+        test = " - Test";
+    }
+    else if (test == "L")
+    {
+        test = "";
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Steel Dynamics - Scanware Kiosk</title>
+    <meta name="viewport" content="width=device-width" />
+    <link href="../Images/favicon_sdi.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="../Images/favicon_sdi.ico" type="image/x-icon" rel="shortcut icon" />
+    <link href="../Images/favicon_sdi.ico" type="image/x-icon" rel="icon" />
+    <link href="../Content/bootstrap.min.css" rel="stylesheet">                             <!-- Bootstrap Core CSS -->
+    <link href="../Content/font-awesome.min.css" rel="stylesheet" type="text/css">          <!-- Custom Fonts -->
+    <link href="../Content/dataTables.bootstrap.css" rel="stylesheet">                      <!-- DataTables CSS -->
+    <link href="../Content/dataTables.responsive.css" rel="stylesheet">                     <!-- DataTables Responsive CSS -->
+    <link href="../Content/chosen.css" rel="stylesheet" />
+    <link href="../Content/sb-admin-2.css" rel="stylesheet">
+</head>
+<body>
+    <script src="../Scripts/jquery.js"></script>
+
+    <div id="wrapper">
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="height: 90px; padding: 25px 30px 0 30px; margin: 0; visibility: visible;">
+            <form class="form form-inline" action="/Kiosk/Index" method="get" name="resetForm" id="resetForm">
+                <input type="hidden" name="UICulture" id="UICulture" />
+                <input type="hidden" name="loadcard_no" />
+                <input type="hidden" name="pickup_no" />
+                <input type="hidden" name="step_id" value="0" />
+                <img src="../Images/SDILogo_small.png" style="height: 40px; width: 40px; float: left;" />
+                <span class="navbar-brand" style="font-size: 2.5rem;">ScanwareKiosk - @loc_long  @test </span>
+
+                <button class="btn btn-primary btn-lg" style="float: right; margin-left: 10%; width: 100px;">@StringResources.button_reset</button>
+
+                <div id="lang_select" name="lang_select" style="float: right;">
+                    <button class="btn btn-lg lang_opt @if (Model.locale_code != null && Model.locale_code.Equals("en-US")) {<text>lang_active</text> }" id="en-US" name="en-US" onclick="Localize('en-US')">English</button>
+                    <button class="btn btn-lg lang_opt @if (Model.locale_code != null && Model.locale_code.Equals("es-MX")) {<text>lang_active</text> }" id="es-MX" name="es-MX" onclick="Localize('es-MX')">Español</button>
+                </div>
+            </form>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="page-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                    <section class="content-wrapper main-content">
+                        @RenderBody()
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../Scripts/bootstrap.js"></script>                                         <!-- Bootstrap Core JavaScript -->
+    <script src="../Scripts/chosen.jquery.min.js"></script>                                 <!-- Custom Theme JavaScript -->
+    <script src="../Scripts/init.js"></script>
+    <script src="~/Scripts/Kiosk.js"></script>
+    <script>
+        const language_options = {
+            'en-US': document.getElementById('en-US'),
+            'es-MX': document.getElementById('es-MX')
+        };
+
+        const UICulture = document.getElementById('UICulture');
+        // default en-US
+        const Localize = (mode = 'en-US') => {
+            Object.values(language_options).forEach(val => val.classList.remove('lang_active'));
+            language_options[mode].classList.add('lang_active');
+            UICulture.value = mode;
+        };
+    </script>
+    <style>
+        html {
+            content: "";
+            background: center center no-repeat content-box;
+            background-image: url("../Images/SDILogo_small.png"), linear-gradient(to top left, #000, #333 40%, #FFF);
+            background-size: cover;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        body { visibility: hidden; }
+
+        /* center all content elements */
+        section { left: 50%; margin: 0; position: absolute; top: 50%; transform: translate(-50%, -50%); visibility: visible; width: 90%; }
+
+        .lang_active { background-color: #286090; color: white; }
+        .lang_opt { border-color: darkgrey; }
+    </style>
+</body>
+</html>
