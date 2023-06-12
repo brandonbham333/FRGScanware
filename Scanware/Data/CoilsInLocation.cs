@@ -30,7 +30,7 @@ namespace Scanware.Data
         public string Message { get; set; }
 
         public int coilWeight { get; set; }
-        public string vehicle_no { get; set; }
+
         public string coilLocation { get; set; }
 
         public static bool GetLoadDtlCoilsStatus(List<CoilsInLoad> coils)

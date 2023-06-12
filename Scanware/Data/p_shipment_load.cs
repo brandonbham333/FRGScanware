@@ -785,12 +785,11 @@ namespace Scanware.Data
 
         public List<CoilsInLoad> GetcoilsInLoad(int load_id, int is_master)
         {
-            sdipdbEntities db = ContextHelper.SDIPDBContext;
             List<CoilsInLoad> coils;
 
             if (is_master == 1)
             {
-                coils = load_dtl.GetLoadDtlCoilsSubs(load_id);    
+                coils = load_dtl.GetLoadDtlCoilsSubs(load_id);
             }
             else
             {

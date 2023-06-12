@@ -89,8 +89,6 @@ namespace Scanware.Models
 
         public string ovd_l_coils { get; set; }
 
-        public string coil_scan_flag { get; set; }
-
         public string is_after_12_load { get; set; }
 
         public Boolean retry_shipping { get; set; }

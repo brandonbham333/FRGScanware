@@ -134,13 +134,12 @@ namespace Scanware.Data
                      var sql = "select pp.spec_instruct_loading from coil_planned_routing cpr LEFT JOIN product_processors pp " +
                                 " ON cpr.processor_cd = pp.processor_cd LEFT JOIN receiver r ON r.receiver_id = pp.receiver_id " +
                                 " where cpr.order_no = @order_no and cpr.line_item_no = @line_item_no " +
-                                " and r.display_loading_instruct = 'Y'" +
                                 " and cpr.line_item_coil_no = @line_item_coil_no and cpr.processing_order = (select min(processing_order) " +
                                 " from coil_planned_routing where order_no = @order_no and line_item_no = @line_item_no " +
                                 " and line_item_coil_no = @line_item_coil_no and processing_order > " +
                                 " (select max(processing_order) from coil_planned_routing  where order_no = @order_no " +
                                 " and line_item_no = @line_item_no and line_item_coil_no = @line_item_coil_no " +
-                               " and facility_cd = @facility_cd and processed_ind = 'Y' ))";
+                               " and facility_cd = @facility_cd and processed_ind = 'Y'))";
 
                      loading_instruct = db.Database.SqlQuery<string>(sql, new SqlParameter("@order_no", order_no),
                                                                              new SqlParameter("@line_item_no", order_li),
@@ -150,9 +149,8 @@ namespace Scanware.Data
                 }
                 else 
                 {
-                    var sql2 = "select c.spec_instruct_loading from customer_ship_to_origin c JOIN receiver r " +
-                               "ON c.ship_to_location_name = r.ship_to_location_name where c.ship_to_location_name = @ship_to_location " +
-                               " and c.customer_id = @customer_id and c.from_freight_location_cd = @from_location_cd AND r.display_loading_instruct = 'Y'";
+                    var sql2 = "select spec_instruct_loading from customer_ship_to_origin where ship_to_location_name = @ship_to_location " +
+                               " and customer_id = @customer_id and from_freight_location_cd = @from_location_cd ";
 
                     loading_instruct = db.Database.SqlQuery<string>(sql2, new SqlParameter("@ship_to_location", ship_to_location),
                                                                             new SqlParameter("@customer_id", customer_id),
