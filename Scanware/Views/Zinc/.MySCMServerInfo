@@ -1,0 +1,7 @@
+SCMBranch=Butler
+SCMRepository=Butler/Microsoft/Web/Scanware/Scanware/Views/Zinc
+SCMMainlineUUID={13f5ad7f-02f0-4f00-a01b-115010754340}
+SCMBranchRepositoryID=5521
+ConsumeIngot.cshtml;2148594534;2;1685040408;|37707|219496
+IngotStatus.cshtml;3615540022;2;1685040408;|37708|219497
+ZincInventory.cshtml;894274037;2;1685040408;|37709|219498

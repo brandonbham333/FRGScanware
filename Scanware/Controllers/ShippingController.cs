@@ -1123,7 +1123,7 @@ namespace Scanware.Controllers
             List<int> subLoads = new List<int>();
 
             //Check if this is a subload - Butler
-            if (rsp.location != "C" && char_load_id != null)
+            if (rsp.location != "C" && char_load_id != null && char_load_id != "")
             {
                 subLoads = shipment_load.isMasterLoad(char_load_id);
 
@@ -1165,7 +1165,7 @@ namespace Scanware.Controllers
                 try
                 {
 
-                    if (char_load_id != null && viewModel.shipment.load_id > 0 && rsp.location == "B") 
+                    if (char_load_id != null && viewModel.shipment != null && viewModel.shipment.load_id > 0 && rsp.location == "B") 
                     {
                         string coil;
 
@@ -1190,9 +1190,12 @@ namespace Scanware.Controllers
                     //get app settings for Overide coils verification by line
                     application_settings ovd_b = application_settings.GetSetting("B_COILS_OVD");
                     application_settings ovd_l = application_settings.GetSetting("L_COILS_OVD");
+                    application_settings COIL_SCAN_FLAG = application_settings.GetSetting("COIL_SCAN_FLAG");
 
+                    
                     viewModel.ovd_b_coils = ovd_b.default_value;
                     viewModel.ovd_l_coils = ovd_l.default_value;
+                    viewModel.coil_scan_flag = COIL_SCAN_FLAG.default_value;
 
                     Session["coilsInLoad"] = null;
                     Session["LoadVerified"] = null;
@@ -1211,14 +1214,14 @@ namespace Scanware.Controllers
 
                         if (subLoads.Count() > 0)
                         {
-                            addLoad.coils = load.GetcoilsInLoad(load.load_id, 1);
+                            addLoad.coils = load.GetcoilsInLoad(load.load_id, 1);    
                         }
                         else
                         {
                             addLoad.coils = load.GetcoilsInLoad(load.load_id, 0);
                         }
 
-                        newLoad.Add(addLoad);
+                            newLoad.Add(addLoad);
                     }
 
                     if (newLoad != null)
@@ -1251,6 +1254,7 @@ namespace Scanware.Controllers
                     viewModel.Error = Error;
                     return PartialView("LoadTruckButler", viewModel);
                 }
+              //  ViewBag.Vehicle = "LoadTruck";
                 return PartialView("LoadTruckButler", viewModel);
             }
             else
@@ -1732,9 +1736,11 @@ namespace Scanware.Controllers
                 //get app settings for Overide coils verification by line
                 application_settings ovd_b = application_settings.GetAppSetting("B_COILS_OVD");
                 application_settings ovd_l = application_settings.GetAppSetting("L_COILS_OVD");
+                application_settings COIL_SCAN_FLAG = application_settings.GetSetting("COIL_SCAN_FLAG");
 
                 viewModel.ovd_b_coils = ovd_b.default_value;
                 viewModel.ovd_l_coils = ovd_l.default_value;
+                viewModel.coil_scan_flag = COIL_SCAN_FLAG.default_value;
 
                 Session["coilsInLoad"] = null;
                 Session["LoadVerified"] = null;

@@ -1,0 +1,10 @@
+SCMBranch=Butler
+SCMRepository=Butler/Microsoft/Web/Scanware/Scanware/Views/Paint
+SCMMainlineUUID={13f5ad7f-02f0-4f00-a01b-115010754340}
+SCMBranchRepositoryID=2006
+AddPaint.cshtml;2722038767;2;1685040406;|20542|219486
+ContainerStatus.cshtml;998290641;1;1685040406;|37798|185437
+MovePaint.cshtml;123563448;2;1685040406;|20543|219487
+MovePaintButler.cshtml;2352841224;2;1685040406;|37799|219488
+PaintContainerDetails.cshtml;983761241;2;1685040406;|37800|185821
+ReceivePaint.cshtml;570204387;3;1685040406;|37801|219489

@@ -200,6 +200,9 @@ namespace Scanware.Data
         {
             sdipdbEntities db = ContextHelper.SDIPDBContext;
 
+            var load = db.shipment_load.Where(x => x.load_id == load_id).FirstOrDefault();
+            string vehicle = load.vehicle_no;
+
             var list = db.load_dtl.Where(x => x.load_id == load_id);
 
             List<CoilsInLoad> coilsList = new List<CoilsInLoad>();
@@ -211,7 +214,7 @@ namespace Scanware.Data
                 coil.verified = Convert.ToDateTime(load_dtl.coil_scanned_dt);
                 coil.coilWeight = Convert.ToInt32(load_dtl.coil_weight);
                 coil.coilLocation = load_dtl.coil_yard_location.Trim();
-                
+                coil.vehicle_no = vehicle;
 
                 coilsList.Add(coil);
             }
@@ -248,6 +251,8 @@ namespace Scanware.Data
             sdipdbEntities db = ContextHelper.SDIPDBContext;
 
             var loads = db.shipment_load.Where(s => s.master_load_id == load_id).Select(s => s.load_id).ToList();
+            var load = db.shipment_load.Where(x => x.load_id == load_id).FirstOrDefault();
+            string vehicle = load.vehicle_no;
 
             var list = db.load_dtl.Where(x => loads.Contains(x.load_id)).ToList();
 
@@ -260,8 +265,7 @@ namespace Scanware.Data
                 coil.verified = Convert.ToDateTime(load_dtl.coil_scanned_dt);
                 coil.coilWeight = Convert.ToInt32(load_dtl.coil_weight);
                 coil.coilLocation = load_dtl.coil_yard_location.Trim();
-
-
+                coil.vehicle_no = vehicle;
 
                 coilsList.Add(coil);
             }

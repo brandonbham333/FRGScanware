@@ -1,0 +1,8 @@
+SCMBranch=Butler
+SCMRepository=Butler/Microsoft/Web/Scanware/Printing
+SCMMainlineUUID={13f5ad7f-02f0-4f00-a01b-115010754340}
+SCMBranchRepositoryID=1891
+App.config;3460331971;5;1685040237;|19558|133973
+Printing.csproj;1523228706;5;1685040237;|19559|133974
+Printing.csproj.vspscc;1359561909;5;1685040237;|19560|133975
+Program.cs;3339758541;5;1685040237;|19561|133976

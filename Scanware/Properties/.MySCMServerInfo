@@ -1,0 +1,15 @@
+SCMBranch=Butler
+SCMRepository=Butler/Microsoft/Web/Scanware/Scanware/Properties
+SCMMainlineUUID={13f5ad7f-02f0-4f00-a01b-115010754340}
+SCMBranchRepositoryID=1998
+AssemblyInfo.cs;3871455123;1;1685040371;|20441|134257
+Resources.Designer.cs;3185239215;1;1685040371;|42910|202413
+Resources.resx;2095090100;1;1685040371;|42908|202411
+Settings.Designer.cs;480405077;53;1685040371;|20442|264101
+Settings.settings;361290036;53;1685040371;|20443|264102
+StringResources.Designer.cs;3056812633;2;1685040371;|42909|203072
+StringResources.en-US.Designer.cs;0;1;1685040371;|42903|202406
+StringResources.en-US.resx;2435289998;2;1685040371;|42904|203073
+StringResources.es-MX.Designer.cs;0;1;1685040371;|42905|202408
+StringResources.es-MX.resx;2904362535;2;1685040371;|42907|203074
+StringResources.resx;1661496463;2;1685040371;|42906|203075

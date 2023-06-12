@@ -1,0 +1,9 @@
+SCMBranch=Butler
+SCMRepository=Butler/Microsoft/Web/Scanware/Scanware/Views/WarehouseShipping
+SCMMainlineUUID={13f5ad7f-02f0-4f00-a01b-115010754340}
+SCMBranchRepositoryID=7188
+Index.cshtml;4235745441;1;1685040408;|49799|219414
+LoadRailWarehouse.cshtml;2556829743;1;1685040408;|49800|219415
+LoadTruckWarehouse.cshtml;690515382;1;1685040408;|49801|219416
+VerifiedCoilsPartial.cshtml;3227057957;1;1685040408;|49802|219417
+ViewShipmentLoadImage.cshtml;3442162099;1;1685040408;|49803|219418

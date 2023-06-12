@@ -221,7 +221,7 @@ namespace Scanware.Data
             return coils;
         }
 
-        public static string UpdateNewRailLoad(int load_id, string vehicle_no, application_security current_application_security, byte? rail_car_no = null)
+          public static string UpdateNewRailLoad(int load_id, string vehicle_no, application_security current_application_security, byte? rail_car_no = null)
         {
             sdipdbEntities db = ContextHelper.SDIPDBContext;
 
