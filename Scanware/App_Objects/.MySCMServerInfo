@@ -1,0 +1,6 @@
+SCMBranch=Butler
+SCMRepository=Butler/Microsoft/Web/Scanware/Scanware/App_Objects
+SCMMainlineUUID={13f5ad7f-02f0-4f00-a01b-115010754340}
+SCMBranchRepositoryID=1985
+Utils.cs;1340465115;8;1685040238;|20188|219421
+ZPLUtils.cs;628499624;1;1685040238;|43121|203868

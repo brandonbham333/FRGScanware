@@ -424,54 +424,54 @@
         if (Model.loc == "C")
         {
             <div class="panel panel-primary">
-                <div class="panel-heading">
-                    @if (Model.current_coil != null)
-                    {
-                        <text>Add Defect and Hold Coil on Order</text>
-                    }
-                    else
-                    {
-                        <text>Add Defect to Coil Off Order</text>
-                    }
-                </div>
+            <div class="panel-heading">
+                @if (Model.current_coil != null)
+                {
+                    <text>Add Defect and Hold Coil on Order</text>
+                }
+                else
+                {
+                    <text>Add Defect to Coil Off Order</text>
+                }
+            </div>
 
-                <div class="panel-body">
-                    <form action="/Coil/HoldCoil" method="post">
-                        <div class="form-group">
-                            <label>
-                                @Model.current_all_produced_coil.production_coil_no
-                                @if (Model.current_coil.order_no != 0)
-                                {<text>On order: </text> @Model.current_coil.order_no <text>/ Coil Status: </text> @Model.current_coil_status.description}
+            <div class="panel-body">
+                <form action="/Coil/HoldCoil" method="post">
+                    <div class="form-group">
+                        <label>
+                            @Model.current_all_produced_coil.production_coil_no
+                            @if (Model.current_coil.order_no != 0)
+                            {<text>On order: </text> @Model.current_coil.order_no <text>/ Coil Status: </text> @Model.current_coil_status.description}
                             else
                             {<text>Not on order / Inventory Status: </text> @Model.current_inventory_reason.reason}
-                            </label>
-                            @if ((Model.current_inventory_item != null || Model.current_coil.order_no != 0))
-                            // if search result exists && status not in defect/hold list
-                            {
-                                <select class="form-control" name="claim_reason_cd">
-                                    @foreach (var reason in Model.ScanwareHoldDefects)
-                                    {
-                                        <option value="@reason.claim_reason_cd">@reason.description</option>
-                                    }
-                                </select>
+                        </label>
+                        @if ((Model.current_inventory_item != null || Model.current_coil.order_no != 0) && Model.current_coil.coil_status != "SC")
+                        // if search result exists && status not in defect/hold list
+                        {
+                            <select class="form-control" name="claim_reason_cd">
+                                @foreach (var reason in Model.ScanwareHoldDefects)
+                                {
+                                    <option value="@reason.claim_reason_cd">@reason.description</option>
+                                }
+                            </select>
 
-                                <label>Comment</label>
-                                <input class="form-control" id="comment" type="text" name="comment" value="" />
-                                <input type="hidden" name="production_coil_no" value="@Model.current_all_produced_coil.production_coil_no" />
-                                <br />
-                                <button class="btn btn-primary" type="submit">Hold Coil</button>
-                            }
-                            else
-                            {
-                                <br /><br />
-                                <text>Please contact shipping admin to hold</text>
-                            }
-                        </div>
-                    </form>
-                </div>
+                            <label>Comment</label>
+                            <input class="form-control" id="comment" type="text" name="comment" value="" />
+                            <input type="hidden" name="production_coil_no" value="@Model.current_all_produced_coil.production_coil_no" />
+                            <br />
+                            <button class="btn btn-primary" type="submit">Hold Coil</button>
+                        }
+                        else
+                        {
+                            <br /><br />
+                            <text>Please contact shipping admin to hold</text>
+                        }
+                    </div>
+                </form>
             </div>
+        </div>
         }
-    }
+        }
 }
 
 <script>
@@ -492,7 +492,6 @@
     });
 
     $(document).ready(() => {
-   
         const sistersToggle = document.getElementById('sistersToggle');
 
         if (sistersToggle) {

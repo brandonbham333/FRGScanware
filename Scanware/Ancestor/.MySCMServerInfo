@@ -1,0 +1,6 @@
+SCMBranch=Butler
+SCMRepository=Butler/Microsoft/Web/Scanware/Scanware/Ancestor
+SCMMainlineUUID={13f5ad7f-02f0-4f00-a01b-115010754340}
+SCMBranchRepositoryID=1983
+Ancestor.cs;2707484275;5;1685040238;|20186|232317
+Util.cs;3225071342;7;1685040238;|20187|214214

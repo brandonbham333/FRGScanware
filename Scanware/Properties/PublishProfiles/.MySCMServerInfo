@@ -1,0 +1,10 @@
+SCMBranch=Butler
+SCMRepository=Butler/Microsoft/Web/Scanware/Scanware/Properties/PublishProfiles
+SCMMainlineUUID={13f5ad7f-02f0-4f00-a01b-115010754340}
+SCMBranchRepositoryID=1999
+FolderProfile.pubxml;1081025262;9;1685040371;|20444|243110
+Local.pubxml;1303194467;5;1685040371;|20446|202220
+Local.pubxml.user;4218648280;41;1685040371;|20447|203076
+Web02Production.pubxml;281005034;2;1685040371;|20448|137471
+Web02Production.pubxml.user;219974193;5;1685040371;|20449|137472
+FolderProfile.pubxml.user;3574502358;26;1686591727;|20445|265432

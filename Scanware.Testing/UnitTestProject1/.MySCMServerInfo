@@ -1,0 +1,9 @@
+SCMBranch=Butler
+SCMRepository=Butler/Microsoft/Web/Scanware/Scanware.Testing/UnitTestProject1
+SCMMainlineUUID={13f5ad7f-02f0-4f00-a01b-115010754340}
+SCMBranchRepositoryID=6311
+App.config;3680307019;1;1685040408;|43103|203604
+packages.config;1670814805;1;1685040408;|43107|203608
+Scanware.UnitTests.cs;2871344235;1;1685040408;|43104|203605
+Scanware.UnitTests.csproj;1557098898;1;1685040408;|43105|203606
+Scanware.UnitTests.csproj.vspscc;1359561909;1;1685040408;|43106|203607
