@@ -78,6 +78,7 @@ namespace Scanware.Ancestor
                 {
                     if (live_test == "L")
                     {
+                        // connString += "col-l3";
                         connString += "col-l3";
                     }
                     else
@@ -252,6 +253,8 @@ namespace Scanware.Ancestor
 
             if (!Debugger.IsAttached)
             {
+                //Default value is set in web.config file
+                //Has to be your Locations letter for debugging on Zebra Scanners
                 location = Properties.Settings.Default.RegLocation;
             }
             else

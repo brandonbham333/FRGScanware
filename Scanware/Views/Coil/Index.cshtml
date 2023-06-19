@@ -445,7 +445,7 @@
                             else
                             {<text>Not on order / Inventory Status: </text> @Model.current_inventory_reason.reason}
                         </label>
-                        @if ((Model.current_inventory_item != null || Model.current_coil.order_no != 0))
+                        @if ((Model.current_inventory_item != null || Model.current_coil.order_no != 0) && Model.current_coil.coil_status != "SC")
                         // if search result exists && status not in defect/hold list
                         {
                             <select class="form-control" name="claim_reason_cd">

@@ -263,7 +263,7 @@
             
           
         }
-        else if (Model.shipment.scale_time_in != null && Model.shipment.scale_weight_out == null && Model.shipment.scale_time_out == null && Model.MySignature == null)
+        else if (Model.shipment.scale_time_in != null && Model.shipment.scale_weight_out == null && Model.shipment.scale_time_out == null)// && Model.MySignature == null)
         {
             //checked in but not checked out, no signature yet          
             <form action="/Shipping/SetScaleWeightAndGetSignature" method="post" id="CheckOutTruck" name="CheckOutTruck" @if (!Model.all_coils_verified)

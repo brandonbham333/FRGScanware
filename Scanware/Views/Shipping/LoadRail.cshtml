@@ -270,217 +270,304 @@ else if (Model.shipment != null && Model.shipment.vehicle_no != null)
     </div>
 
     <div class="panel-body">
-        
-        
+
+
         @{
-        bool all_coils_verified = true;
-        string tag_nos = "";
+            bool all_coils_verified = true;
+            string tag_nos = "";
 
-        foreach (var coil in Model.coils_in_shipment)
-        {
-            if (coil.coil_scanned_dt == null)
+            foreach (var coil in Model.coils_in_shipment)
             {
+                if (coil.coil_scanned_dt == null)
+                {
 
-                all_coils_verified = false;
+                    all_coils_verified = false;
+
+                }
+
+                if (coil.tag_no != "" && coil.tag_no != null)
+                {
+                    tag_nos = tag_nos + coil.tag_no;
+                }
 
             }
 
-            if (coil.tag_no != "" && coil.tag_no != null)
+            if (all_coils_verified == true && Model.shipment.scale_time_out == null)
             {
-                tag_nos = tag_nos + coil.tag_no;
-            }
 
-        }
 
-        if (all_coils_verified == true && Model.shipment.scale_time_out == null)
-        {
-         
-  
-          
-            <form action="/Shipping/ShipRailLoad" method="post" id="ShipRailLoad" name="ShipRailLoad">
-    
+
+                <form action="/Shipping/ShipRailLoad" method="post" id="ShipRailLoad" name="ShipRailLoad">
+
                     <input class="form-control" name="char_load_id" id="ship_char_load_id" type="hidden" value="@Model.shipment.char_load_id">
-                    <button class="btn btn-primary" type="submit">Ship @Model.shipment.char_load_id on @Model.shipment.vehicle_no</button>
 
-            </form>
-            
-                       
-            <br />
-            
-            
-            <script type="text/javascript">
-
-                $(document).ready(function () {
-
-                    var toShip = confirm("All coils are verified, complete load?");
-
-                    if (toShip == true) {
-                        document.ShipRailLoad.submit();
+                    @*<button class="btn btn-primary" type="button" id="ship-btn">Ship @Model.shipment.char_load_id on @Model.shipment.vehicle_no</button>*@
+                    @if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57"))
+                    {
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ship-rail-modal">
+                            Ship @Model.shipment.char_load_id
+                        </button>
                     }
-                });
+                    else
+                    {
+                        <button class="btn btn-primary" type="submit">Ship @Model.shipment.char_load_id on @Model.shipment.vehicle_no</button>
+                    }
+
+
+                </form>
+
+                <!-- Modal -->
+                <div class="modal fade ship-rail-modal" id="ship-rail-modal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg ship-rail-modal-dialog" role="document">
+                        <div class="modal-content">
+
+                            <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;">
+
+                                <h5 style="width:100%;font-weight:bold;"> Confirm Rail Car Number</h5>
+
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+
+                            </div>
+
+                            <div class="modal-body">
+                                <form>
+                                    <div class="form-group">
+                                        <label for="rail-car-input">Rail Car Number</label>
+                                        <input class="form-control" id="rail-car-input" placeholder="Enter Rail Car">
+                                        <small id="ship-error-text" style="display:none; font-weight:bold;color:red;" class="form-text text-muted">Rail Car Numbers Must Match! Failed To Ship!</small>
+
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <input type="hidden" id="inp-vehicle-no" value="@Model.shipment.vehicle_no"/>
+                                <button type="button" id="ship-btn" class="btn btn-primary">
+                                    Ship Load
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+
+                <script type="text/javascript">
+
+                    $(document).ready(function () {
+
+                        $('#ship-rail-modal').on('hidden.bs.modal', function () {                       
+                            $('#ship-btn').prop('disabled', false);
+                            $('#ship-error-text').css('display', 'none');
+                            $('#ship-btn').html('Ship Load');
+                        })
+
+                        $('#ship-btn').on('click', function () {
+
+                            actualRailCarValue = $('#inp-vehicle-no').val();
+                            inputRailCarValue = $('#rail-car-input').val();
+
+                            if (actualRailCarValue === inputRailCarValue) {
+                                $("#ShipRailLoad").trigger("submit");
+                                $('#ship-btn').prop('disabled', true);
+                                $('#ship-btn').html('Shipping...');
+                               
+                                $('#ship-error-text').css('display', 'none');
+                                                          
+                            }
+
+                            else {
+                            
+                                $('#ship-error-text').css('display', 'block');
+                            
+                            }
+                         
+                        })
+
+                        var toShip = confirm("All coils are verified, complete load?");
+
+                        if (toShip == true) {
+                            document.ShipRailLoad.submit();
+                        }
+
+
+                    });
                 </script>
-            
-               
+
+
+            }
         }
-        }
-    
+
 
         <table class="table table-striped table-bordered">
             <thead>
-                                        <tr>
-                                            <th>Coil No</th>
-                                            <th>Location</th>
-                                            <th>Status</th>
-                                            <th>Pack Code</th>
-                                            <th>Change User</th>
-                                            <th>Verified Time</th>
-                                            
-                                        </tr>
-            </thead>
-        <tbody>
-
-            @foreach (var coil in Model.coils_in_shipment)
-            {
                 <tr>
-                    <td><a href="/Coil/Index?production_coil_no=@coil.production_coil_no">@coil.production_coil_no @if (coil.tag_no != null && coil.tag_no != "")
-                                                                                                                   { <text> / @coil.tag_no</text>}</a></td>
-                    <td>@coil.coil_yard_location</td>
-                    <td>@if (coil.coil_scanned_dt != null)
-                        {<text>Verified</text>}
-                        else
-                        {<text>Unverified</text>}</td>
-                    <td>@coil.packaging_description</td>
-                    <td>@coil.change_user_name</td>
-                    <td>@coil.coil_scanned_dt</td>
-                </tr>
-    
-            }
+                    <th>Coil No</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Pack Code</th>
+                    <th>Change User</th>
+                    <th>Verified Time</th>
 
-              
-        </tbody>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var coil in Model.coils_in_shipment)
+                {
+                    <tr>
+                        <td>
+                            <a href="/Coil/Index?production_coil_no=@coil.production_coil_no">
+                                @coil.production_coil_no @if (coil.tag_no != null && coil.tag_no != "")
+                                {<text> / @coil.tag_no</text>}
+                            </a>
+                        </td>
+                        <td>@coil.coil_yard_location</td>
+                        <td>
+                            @if (coil.coil_scanned_dt != null)
+                            {<text>Verified</text>}
+                        else
+                        {<text>Unverified</text>}
+                        </td>
+                        <td>@coil.packaging_description</td>
+                        <td>@coil.change_user_name</td>
+                        <td>@coil.coil_scanned_dt</td>
+                    </tr>
+
+                }
+
+
+            </tbody>
         </table>
 
 
 
         <table class="table table-striped table-bordered">
-        <tbody>
+            <tbody>
 
-            <tr><td style="width:155px;"><strong>Load Card #</strong></td><td>@Model.shipment.char_load_id</td></tr>
-            <tr><td style="width:155px;"><strong>Rail Car</strong></td><td>@Model.shipment.vehicle_no</td></tr>
-            <tr><td style="width:155px;"><strong>Change User</strong></td><td>@Model.shipment.change_user_name</td></tr>
-            <tr><td style="width:155px;"><strong>Change Date</strong></td><td>@Model.shipment.change_datetime</td></tr>
-            
-            @if (Model.shipment.scale_time_out != null)
-            {
-                <tr><td style="width:155px;"><strong>Time Out</strong></td><td>@Model.shipment.scale_time_out</td></tr>
-            }
-            <tr></tr>
+                <tr><td style="width:155px;"><strong>Load Card #</strong></td><td>@Model.shipment.char_load_id</td></tr>
+                <tr><td style="width:155px;"><strong>Rail Car</strong></td><td>@Model.shipment.vehicle_no</td></tr>
+                <tr><td style="width:155px;"><strong>Change User</strong></td><td>@Model.shipment.change_user_name</td></tr>
+                <tr><td style="width:155px;"><strong>Change Date</strong></td><td>@Model.shipment.change_datetime</td></tr>
 
-                        
-        </tbody>
-        </table> 
-        
+                @if (Model.shipment.scale_time_out != null)
+                {
+                    <tr><td style="width:155px;"><strong>Time Out</strong></td><td>@Model.shipment.scale_time_out</td></tr>
+                }
+                <tr></tr>
+
+
+            </tbody>
+        </table>
+
         @if (1 == 1)
         {
 
 
             if (Model.shipment.scale_time_out != null)
             {
-              <a class="btn btn-primary" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2fbill_of_lading_rail_5201&customer_id=@Model.shipment.customer_id&LoadID=@Model.shipment.load_id&rs:Command=Render" target="_blank">View BOL</a>   
-               <br /><br />
+                <a class="btn btn-primary" href="http://cfrd-sql04/ReportServer_FRGW/Pages/ReportViewer.aspx?%2fReportFramework%2fbill_of_lading_rail_5201&customer_id=@Model.shipment.customer_id&LoadID=@Model.shipment.load_id&rs:Command=Render" target="_blank">View BOL</a>
+                <br /><br />
             }
             else
             {
-             
-            <form action="/Shipping/CancelRailLoad" method="post" id="CancelRailLoad" name="CancelRailLoad">
-    
+
+                <form action="/Shipping/CancelRailLoad" method="post" id="CancelRailLoad" name="CancelRailLoad">
+
                     <input class="form-control" name="char_load_id" id="cancel_char_load_id" type="hidden" value="@Model.shipment.char_load_id">
-                <button class="btn btn-danger" type="submit">Cancel Load @Model.shipment.char_load_id</button>
+                    <button class="btn btn-danger" type="submit">Cancel Load @Model.shipment.char_load_id</button>
 
-            </form>
-            <br /><br />
-               
+                </form>
+                <br /><br />
+
             }
-        
-        
-        <div class="panel panel-primary">
-        <div class="panel-heading">
-            Shipment Load Images
-        </div>
 
-        <div class="panel-body">
 
-            <form action="/Shipping/UploadShipmentLoadImage" method="post" enctype="multipart/form-data">
-    
-                <div class="form-group">
-                <label>Add Image for @Model.shipment.char_load_id</label>
-                <input name="upload_file" type="file" class="form-control"  />
-                <input type="hidden" name="load_id" value="@Model.shipment.load_id" />
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    Shipment Load Images
                 </div>
-    
-                <button class="btn btn-primary" type="submit">Add Image</button>
-            </form>
 
-            <br /><br />
+                <div class="panel-body">
+
+                    <form action="/Shipping/UploadShipmentLoadImage" method="post" enctype="multipart/form-data">
+
+                        <div class="form-group">
+                            <label>Add Image for @Model.shipment.char_load_id</label>
+                            <input name="upload_file" type="file" class="form-control" />
+                            <input type="hidden" name="load_id" value="@Model.shipment.load_id" />
+                        </div>
+
+                        <button class="btn btn-primary" type="submit">Add Image</button>
+                    </form>
+
+                    <br /><br />
 
 
-         @if (!Request.UserAgent.Contains("Windows NT 5.1"))
-         {
-                
-         <table class="table table-striped table-bordered">
-            <thead>
+                    @if (!Request.UserAgent.Contains("Windows NT 5.1"))
+                    {
+
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Add User</th>
+                                    <th>Add Datetime</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @if (Model.load_images.Count > 0)
+                                {
+                                    foreach (var img in Model.load_images)
+                                    {
                                         <tr>
-                                            <th></th>
-                                            <th>Add User</th>
-                                            <th>Add Datetime</th>
-                                            
+                                            <td>
+                                                <a href="/Shipping/ViewShipmentLoadImage?image_no=@img.image_no">
+                                                    @{
+                                                        var base64 = Convert.ToBase64String(img.image_data);
+                                                        var imgSrc = String.Format("data:image/gif;base64,{0}", base64);
+                                                    }
+
+                                                    <img src="@imgSrc" style="max-width:150px;" />
+
+                                                </a>
+                                            </td>
+                                            <td>@img.add_user_name</td>
+                                            <td>@img.add_datetime</td>
                                         </tr>
-            </thead>
-        <tbody>
 
-            @if (Model.load_images.Count > 0)
-            {
-                foreach (var img in Model.load_images)
-                {
-                    <tr>
-                        <td><a href="/Shipping/ViewShipmentLoadImage?image_no=@img.image_no">
-                            @{
-                    var base64 = Convert.ToBase64String(img.image_data);
-                    var imgSrc = String.Format("data:image/gif;base64,{0}", base64);
-                            }
+                                    }
+                                }
+                                else
+                                {
+                                    <tr><td colspan="3">No Images Uploaded</td></tr>
 
-                            <img src="@imgSrc" style="max-width:150px;"/>
+                                }
 
-                            </a></td>
-                        <td>@img.add_user_name</td>
-                        <td>@img.add_datetime</td>
-                    </tr>
-    
-                }
-            }
-            else
-            {
-                <tr><td colspan="3">No Images Uploaded</td></tr>   
-            }
-              
-        </tbody>
-        </table>
-        
-         }
+                            </tbody>
+                        </table>
+
+                    }
 
 
-        </div>
-    </div>
+                </div>
+            </div>
 
 
-            
-         
-            
-        
-        
-            
-            <meta http-equiv="IBrowse_ScannerNavigate" content="Javascript:OnScan('%s','%s','%s');" />   
-            
+
+
+
+
+
+
+            <meta http-equiv="IBrowse_ScannerNavigate" content="Javascript:OnScan('%s','%s','%s');" />
+
             <script type="text/javascript">
 
                 var shipTagScanned = false;
@@ -526,69 +613,69 @@ else if (Model.shipment != null && Model.shipment.vehicle_no != null)
 
 
 
-          </script>
-            
-            
-         if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57"))
-         { //if using zebra scanner
-
-            <script type="text/javascript" charset="utf-8" src="../Scripts/ebapi-modules.js"></script>
-            <script type="text/javascript">
-
-
-                $(document).ready(function () {
-                    EB.Barcode.enable({ allDecoders: true }, fnBarcodeScanned); //enable 
-                });
-
-
-                var shipTagScannedTC = false;
-
-                function fnBarcodeScanned(jsonObject) {
-
-                    //if load card is not yet entered
-                    var scanText = jsonObject.data;
-
-                    //alert(scanText);
-                    //SA, SB - ship tag for hot band coil
-                    //SRSA, SRSB - ship tag for hot band coils returned for re-shipment
-                    if (scanText.substring(0, 1) == "S") {
-                        shipTagScannedTC = true;
-                        document.getElementById("ship_tag").value = scanText.toUpperCase();
-
-                        if ((scanText.substring(0, 1) == "S" && scanText.substring(3, 4) == "B")) {
-
-                            document.getElementById("ScannerUsed").value = 1;
-                            document.VerifyCoil.submit();
-
-                        }
-
-
-                        //if scanned text is a tag_no, auto submit for OP coils because the tags fall off.
-                        if (tag_nos.indexOf(scanText.substring(1)) >= 0) {
-                            document.getElementById("ScannerUsed").value = 1;
-                            document.VerifyCoil.submit();
-                        }
-
-
-                    }
-                    else {
-                        document.getElementById("production_coil_no").value = scanText.toUpperCase();
-                        if (shipTagScannedTC) {
-                            document.getElementById("ScannerUsed").value = 1;
-                            document.VerifyCoil.submit();
-                        }
-                    }
-
-                }
-
             </script>
-            
-         }
+
+
+            if (Request.UserAgent.Contains("TC56") || Request.UserAgent.Contains("TC57"))
+            { //if using zebra scanner
+
+                <script type="text/javascript" charset="utf-8" src="../Scripts/ebapi-modules.js"></script>
+                <script type="text/javascript">
+
+
+                    $(document).ready(function () {
+                        EB.Barcode.enable({ allDecoders: true }, fnBarcodeScanned); //enable
+                    });
+
+
+                    var shipTagScannedTC = false;
+
+                    function fnBarcodeScanned(jsonObject) {
+
+                        //if load card is not yet entered
+                        var scanText = jsonObject.data;
+
+                        //alert(scanText);
+                        //SA, SB - ship tag for hot band coil
+                        //SRSA, SRSB - ship tag for hot band coils returned for re-shipment
+                        if (scanText.substring(0, 1) == "S") {
+                            shipTagScannedTC = true;
+                            document.getElementById("ship_tag").value = scanText.toUpperCase();
+
+                            if ((scanText.substring(0, 1) == "S" && scanText.substring(3, 4) == "B")) {
+
+                                document.getElementById("ScannerUsed").value = 1;
+                                document.VerifyCoil.submit();
+
+                            }
+
+
+                            //if scanned text is a tag_no, auto submit for OP coils because the tags fall off.
+                            if (tag_nos.indexOf(scanText.substring(1)) >= 0) {
+                                document.getElementById("ScannerUsed").value = 1;
+                                document.VerifyCoil.submit();
+                            }
+
+
+                        }
+                        else {
+                            document.getElementById("production_coil_no").value = scanText.toUpperCase();
+                            if (shipTagScannedTC) {
+                                document.getElementById("ScannerUsed").value = 1;
+                                document.VerifyCoil.submit();
+                            }
+                        }
+
+                    }
+
+                </script>
+
+            }
 
 
 
         }
-        
+
     </div>
 </div>
 
@@ -599,5 +686,13 @@ else if (Model.shipment != null && Model.shipment.vehicle_no != null)
 
 }
 
+<style>
+    .ship-rail-modal {
+        background-color: grey;
+    }
+    .ship-rail-modal-dialog {
 
+        margin: 30vh auto;
+    }
+</style>
 

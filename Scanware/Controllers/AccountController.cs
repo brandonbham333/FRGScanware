@@ -226,12 +226,12 @@ namespace Scanware.Controllers
                     
                     adAuth.logged_in_user_function_level_security = function_level_security.GetUserFunctionLevelSecurity(adAuth.logged_in_user_application_security.user_id, adAuth.logged_in_user_application_security.app_name);
 
-                    String groups = adAuth.GetGroups();
+              //      String groups = adAuth.GetGroups();
 
                     //Create the ticket, and add the groups.
                     bool isCookiePersistent = model.RememberMe;
 
-                    FormsAuthenticationTicket authTicket = new FormsAuthenticationTicket(1, model.UserName, DateTime.Now, DateTime.Now.AddMinutes(600), isCookiePersistent, groups);
+                    FormsAuthenticationTicket authTicket = new FormsAuthenticationTicket(1, model.UserName, DateTime.Now, DateTime.Now.AddMinutes(600), isCookiePersistent,String.Empty);//groups);
 
                     //Encrypt the ticket.
                     String encryptedTicket = FormsAuthentication.Encrypt(authTicket);
